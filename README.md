@@ -18,9 +18,6 @@ cp .env.example .env
 
 # 2. 빌드 및 실행
 docker-compose up --build -d
-
-# 3. 애플리케이션 확인
-curl http://localhost:8080/actuator/health
 ```
 
 ### 종료
