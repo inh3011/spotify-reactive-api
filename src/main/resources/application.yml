@@ -1,13 +1,18 @@
 server:
-  port: ${SERVER_PORT:8080}
+  port: 8080
 
 spring:
   application:
     name: spotify-reactive-api
   r2dbc:
-    url: ${SPRING_R2DBC_URL:r2dbc:postgresql://postgres:5432/spotifyapi}
-    username: ${SPRING_R2DBC_USERNAME:postgres}
-    password: ${SPRING_R2DBC_PASSWORD:postgres}
+    url: ${SPRING_R2DBC_URL}
+    username: ${SPRING_R2DBC_USERNAME}
+    password: ${SPRING_R2DBC_PASSWORD}
+  flyway:
+    enabled: true
+    url: ${SPRING_FLYWAY_URL}
+    user: ${SPRING_FLYWAY_USERNAME}
+    password: ${SPRING_FLYWAY_PASSWORD}
 
 logging:
   level:
