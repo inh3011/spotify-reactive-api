@@ -64,42 +64,49 @@ class SpotifyServiceImplTest {
     }
 
     @Nested
-    @DisplayName("readFile 메서드 테스트")
-    class ReadFileTests {
+    @DisplayName("파일 업로드 검증")
+    class FileUploadValidation {
 
         @Test
-        @DisplayName("json 파일 읽기 - 빈 파일 처리 테스트")
-        void shouldHandleEmptyFile() throws IOException {
-            // Given
-            when(multipartFile.getInputStream())
-                    .thenReturn(new ByteArrayInputStream(new byte[0]));
-
-            // When
-            Mono<String> result = spotifyService.readFile(multipartFile);
-
-            // Then
-            StepVerifier.create(result)
-                    .expectNext("")
-                    .verifyComplete();
-        }
-
-        @Test
-        @DisplayName("json 파일 읽기 - IOException 발생시 exception 반환")
-        void shouldHandleFileReadError() throws IOException {
-            // Given
-            when(multipartFile.getInputStream())
-                    .thenThrow(new IOException("File read error"));
-
+        @DisplayName("파일이 Null 이면 예외를 발생시킨다.")
+        void shouldThrowExceptionWhenFileIsNull() {
             // When & Then
-            StepVerifier.create(spotifyService.readFile(multipartFile))
-                    .expectError(RuntimeException.class)
+            StepVerifier.create(spotifyService.readFile(null))
+                    .expectErrorMatches(throwable -> throwable instanceof IllegalArgumentException)
                     .verify();
         }
 
         @Test
-        @DisplayName("json 파일 읽기 - string 변환을 성공")
-        void shouldReadFileSuccessfully() throws IOException {
+        @DisplayName("파일이 비어있으면 예외를 발생시킨다.")
+        void shouldThrowExceptionWhenFileIsEmpty() throws IOException {
             // Given
+            when(multipartFile.isEmpty()).thenReturn(true);
+
+            // When & Then
+            StepVerifier.create(spotifyService.readFile(multipartFile))
+                    .expectErrorMatches(throwable -> throwable instanceof IllegalArgumentException)
+                    .verify();
+        }
+
+        @Test
+        @DisplayName("올바른 파일 확장자가 아니면 예외를 발생시킨다.")
+        void shouldThrowExceptionWithNonJsonFile() throws IOException {
+            // Given
+            when(multipartFile.isEmpty()).thenReturn(false);
+            when(multipartFile.getOriginalFilename()).thenReturn("test.txt");
+
+            // When & Then
+            StepVerifier.create(spotifyService.readFile(multipartFile))
+                    .expectErrorMatches(throwable -> throwable instanceof IllegalArgumentException)
+                    .verify();
+        }
+
+        @Test
+        @DisplayName("파일이 유요할 경우 예외가 발생하지 않는다.")
+        void shouldPassValidationWithJsonFile() throws IOException {
+            // Given
+            when(multipartFile.isEmpty()).thenReturn(false);
+            when(multipartFile.getOriginalFilename()).thenReturn("sample.json");
             when(multipartFile.getInputStream())
                     .thenReturn(new ByteArrayInputStream(jsonData.getBytes(StandardCharsets.UTF_8)));
 
@@ -114,12 +121,34 @@ class SpotifyServiceImplTest {
     }
 
     @Nested
-    @DisplayName("parseJsonData 메서드 테스트")
-    class ParseJsonDataTests {
+    @DisplayName("데이터 파싱 검증")
+    class DataParsingValidation {
 
         @Test
-        @DisplayName("json 데이터 파싱 - 빈 문자열 처리 테스트")
-        void shouldHandleEmptyJsonData() {
+        @DisplayName("잘못된 JSON 구조를 파싱하면 예외를 발생시킨다.")
+        void shouldThrowExceptionWithInvalidJsonStructure() {
+            // Given
+            String invalidJson = "{ invalid json }";
+
+            // When & Then
+            StepVerifier.create(spotifyService.parseJsonData(invalidJson))
+                    .expectError(RuntimeException.class)
+                    .verify();
+        }
+
+        @Test
+        @DisplayName("JSON 데이터가 빈 경우 예외를 발생시킨다.")
+        void shouldThrowExceptionWhenJsonDataIsEmpty() {
+            String emptyJson = "";
+
+            StepVerifier.create(spotifyService.parseJsonData(emptyJson))
+                    .expectErrorMatches(throwable -> throwable instanceof IllegalArgumentException)
+                    .verify();
+        }
+
+        @Test
+        @DisplayName("JSON 데이터가 빈 배열일 경우 빈 리스트를 반환하고 예외가 발생하지 않는다.")
+        void shouldPassValidationWithEmptyJson() {
             // Given
             String emptyJson = "[]";
 
@@ -128,38 +157,29 @@ class SpotifyServiceImplTest {
 
             // Then
             StepVerifier.create(result)
-                    .expectNext(List.of())
+                    .expectNextMatches(List::isEmpty)
                     .verifyComplete();
         }
 
         @Test
-        @DisplayName("json 데이터 파싱 - 잘못된 문자열 처리 테스트")
-        void shouldHandleInvalidJsonData() {
+        @DisplayName("JSON 데이터가 유효할 경우 예외가 발생하지 않는다.")
+        void shouldPassValidationWithArrayJson() {
             // Given
-            String invalidJson = "{ invalid json }";
+            String jsonData = """
+                    [
+                      {
+                        "Artist(s)": "!!!",
+                        "song": "Even When the Waters Cold",
+                        "Album": "Thr!!!er"
+                      }
+                    ]
+                    """;
 
-            // When & Then
-            StepVerifier.create(spotifyService.parseJsonData(invalidJson))
-                    .expectError()
-                    .verify();
-        }
-
-        @Test
-        @DisplayName("json 데이터 파싱 - null 문자열 처리 테스트")
-        void shouldHandleNullJsonData() {
-            // When & Then
-            StepVerifier.create(spotifyService.parseJsonData(null))
-                    .expectError()
-                    .verify();
-        }
-
-        @Test
-        @DisplayName("json 데이터 파싱 - SpotifyData 반환 성공")
-        void shouldParseJsonDataSuccessfully() {
             // When
             Mono<List<SpotifyData>> result = spotifyService.parseJsonData(jsonData);
 
             // Then
+            // When & Then
             StepVerifier.create(result)
                     .expectNextMatches(dataList -> dataList.size() == 1 &&
                             dataList.getFirst().getArtistName().equals("!!!") &&
@@ -167,5 +187,98 @@ class SpotifyServiceImplTest {
                             dataList.getFirst().getAlbumName().equals("Thr!!!er"))
                     .verifyComplete();
         }
+    }
+
+    @Nested
+    @DisplayName("유효한 데이터 검증")
+    class DataValidation {
+
+        @Test
+        @DisplayName("필수값 Artist(s) 가 없으면 예외를 발생시킨다.")
+        void shouldThrowExceptionWhenArtistNameIsNull() {
+            // Given
+            String jsonData = """
+                    [
+                      {
+                        "Artist(s)": "",
+                        "song": "Even When the Waters Cold",
+                        "Album": "Thr!!!er"
+                      }
+                    ]
+                    """;
+
+            // When
+            Mono<List<SpotifyData>> result = spotifyService.parseJsonData(jsonData);
+
+            // Then
+            StepVerifier.create(result)
+                    .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
+                            throwable.getMessage().contains("artist is required"))
+                    .verify();
+        }
+
+        @Test
+        @DisplayName("필수값 song 가 없으면 예외를 발생시킨다.")
+        void shouldThrowExceptionWhenSongTitleIsNull() {
+            // Given
+            String jsonData = """
+                    [
+                      {
+                        "Artist(s)": "!!!",
+                        "song": "",
+                        "Album": "Thr!!!er"
+                      }
+                    ]
+                    """;
+
+            // When
+            Mono<List<SpotifyData>> result = spotifyService.parseJsonData(jsonData);
+
+            // Then
+            StepVerifier.create(result)
+                    .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
+                            throwable.getMessage().contains("song is required"))
+                    .verify();
+        }
+
+        @Test
+        @DisplayName("필수값 Album 가 없으면 예외를 발생시킨다.")
+        void shouldThrowExceptionWhenAlbumNameIsNull() {
+            // Given
+            String jsonData = """
+                    [
+                      {
+                        "Artist(s)": "!!!",
+                        "song": "Even When the Waters Cold",
+                        "Album": ""
+                      }
+                    ]
+                    """;
+
+            // When
+            Mono<List<SpotifyData>> result = spotifyService.parseJsonData(jsonData);
+
+            // Then
+            StepVerifier.create(result)
+                    .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
+                            throwable.getMessage().contains("album is required"))
+                    .verify();
+        }
+
+        @Test
+        @DisplayName("모든 필수값 필드가 유효할 경우 예외가 발생하지 않는다.")
+        void shouldPassValidationWithAllRequiredFields() {
+            // Given
+            Mono<List<SpotifyData>> result = spotifyService.parseJsonData(jsonData);
+
+            // When & Then
+            StepVerifier.create(result)
+                    .expectNextMatches(dataList -> dataList.size() == 1 &&
+                            dataList.getFirst().getArtistName().equals("!!!") &&
+                            dataList.getFirst().getSongTitle().equals("Even When the Waters Cold") &&
+                            dataList.getFirst().getAlbumName().equals("Thr!!!er"))
+                    .verifyComplete();
+        }
+
     }
 }
