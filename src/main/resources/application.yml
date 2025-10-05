@@ -14,7 +14,6 @@ spring:
     user: ${SPRING_FLYWAY_USERNAME}
     password: ${SPRING_FLYWAY_PASSWORD}
 
-# Actuator 설정
 management:
   endpoints:
     web:
@@ -29,6 +28,16 @@ management:
     export:
       prometheus:
         enabled: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: true
+  show-actuator: true
 
 logging:
   level:
