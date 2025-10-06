@@ -2,6 +2,9 @@ package com.example.spotifyreactiveapi.service.impl;
 
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -75,7 +78,7 @@ class SpotifyServiceImplTest {
             when(spotifyProperties.getFilePath()).thenReturn(null);
 
             // When & Then
-            StepVerifier.create(spotifyService.readFile())
+            StepVerifier.create(spotifyService.read())
                     .expectError(RuntimeException.class)
                     .verify();
         }
@@ -87,7 +90,7 @@ class SpotifyServiceImplTest {
             when(spotifyProperties.getFilePath()).thenReturn("");
 
             // When & Then
-            StepVerifier.create(spotifyService.readFile())
+            StepVerifier.create(spotifyService.read())
                     .expectError(RuntimeException.class)
                     .verify();
         }
@@ -99,7 +102,7 @@ class SpotifyServiceImplTest {
             when(spotifyProperties.getFilePath()).thenReturn("nonexistent.json");
 
             // When & Then
-            StepVerifier.create(spotifyService.readFile())
+            StepVerifier.create(spotifyService.read())
                     .expectError(RuntimeException.class)
                     .verify();
         }
@@ -111,27 +114,30 @@ class SpotifyServiceImplTest {
             when(spotifyProperties.getFilePath()).thenReturn("test.txt");
 
             // When & Then
-            StepVerifier.create(spotifyService.readFile())
+            StepVerifier.create(spotifyService.read())
                     .expectError(RuntimeException.class)
                     .verify();
         }
 
         @Test
-        @DisplayName("유효한 JSON 파일 경로일 경우 파일을 읽는다.")
-        void shouldReadValidJsonFile() throws Exception {
+        @DisplayName("유효한 JSON 파일 경로일 경우 파싱까지 성공한다.")
+        void shouldReadAndParseValidJsonFile() throws Exception {
             // Given
             Path tempFile = Files.createTempFile("test", ".json");
             Files.writeString(tempFile, jsonData);
             when(spotifyProperties.getFilePath()).thenReturn(tempFile.toString());
 
             // When
-            Mono<String> result = spotifyService.readFile();
+            Mono<List<SpotifyData>> result = spotifyService.read().flatMap(spotifyService::parse);
 
             // Then
             StepVerifier.create(result)
-                    .expectNext(jsonData)
+                    .expectNextMatches(dataList ->
+                            dataList.size() == 1 &&
+                                    dataList.getFirst().getArtistName().equals("!!!") &&
+                                    dataList.getFirst().getSongTitle().equals("Even When the Waters Cold") &&
+                                    dataList.getFirst().getAlbumName().equals("Thr!!!er"))
                     .verifyComplete();
-
         }
     }
 
@@ -144,9 +150,11 @@ class SpotifyServiceImplTest {
         void shouldThrowExceptionWithInvalidJsonStructure() {
             // Given
             String invalidJson = "{ invalid json }";
+            InputStream inputStream = new ByteArrayInputStream(
+                    invalidJson.getBytes(StandardCharsets.UTF_8));
 
             // When & Then
-            StepVerifier.create(spotifyService.parseJsonData(invalidJson))
+            StepVerifier.create(spotifyService.parse(inputStream))
                     .expectError(RuntimeException.class)
                     .verify();
         }
@@ -155,8 +163,9 @@ class SpotifyServiceImplTest {
         @DisplayName("JSON 데이터가 빈 경우 예외를 발생시킨다.")
         void shouldThrowExceptionWhenJsonDataIsEmpty() {
             String emptyJson = "";
+            InputStream inputStream = new ByteArrayInputStream(emptyJson.getBytes(StandardCharsets.UTF_8));
 
-            StepVerifier.create(spotifyService.parseJsonData(emptyJson))
+            StepVerifier.create(spotifyService.parse(inputStream))
                     .expectErrorMatches(throwable -> throwable instanceof IllegalArgumentException)
                     .verify();
         }
@@ -168,7 +177,8 @@ class SpotifyServiceImplTest {
             String emptyJson = "[]";
 
             // When
-            Mono<List<SpotifyData>> result = spotifyService.parseJsonData(emptyJson);
+            InputStream inputStream = new ByteArrayInputStream(emptyJson.getBytes(StandardCharsets.UTF_8));
+            Mono<List<SpotifyData>> result = spotifyService.parse(inputStream);
 
             // Then
             StepVerifier.create(result)
@@ -191,15 +201,17 @@ class SpotifyServiceImplTest {
                     """;
 
             // When
-            Mono<List<SpotifyData>> result = spotifyService.parseJsonData(jsonData);
+            InputStream inputStream = new ByteArrayInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
+            Mono<List<SpotifyData>> result = spotifyService.parse(inputStream);
 
             // Then
             // When & Then
             StepVerifier.create(result)
-                    .expectNextMatches(dataList -> dataList.size() == 1 &&
-                            dataList.getFirst().getArtistName().equals("!!!") &&
-                            dataList.getFirst().getSongTitle().equals("Even When the Waters Cold") &&
-                            dataList.getFirst().getAlbumName().equals("Thr!!!er"))
+                    .expectNextMatches(dataList ->
+                            dataList.size() == 1 &&
+                                    dataList.getFirst().getArtistName().equals("!!!") &&
+                                    dataList.getFirst().getSongTitle().equals("Even When the Waters Cold") &&
+                                    dataList.getFirst().getAlbumName().equals("Thr!!!er"))
                     .verifyComplete();
         }
     }
@@ -223,12 +235,14 @@ class SpotifyServiceImplTest {
                     """;
 
             // When
-            Mono<List<SpotifyData>> result = spotifyService.parseJsonData(jsonData);
+            InputStream inputStream = new ByteArrayInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
+            Mono<List<SpotifyData>> result = spotifyService.parse(inputStream);
 
             // Then
             StepVerifier.create(result)
-                    .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
-                            throwable.getMessage().contains("artist is required"))
+                    .expectErrorMatches(throwable ->
+                            throwable instanceof RuntimeException &&
+                                    throwable.getMessage().contains("artist is required"))
                     .verify();
         }
 
@@ -247,12 +261,14 @@ class SpotifyServiceImplTest {
                     """;
 
             // When
-            Mono<List<SpotifyData>> result = spotifyService.parseJsonData(jsonData);
+            InputStream inputStream = new ByteArrayInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
+            Mono<List<SpotifyData>> result = spotifyService.parse(inputStream);
 
             // Then
             StepVerifier.create(result)
-                    .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
-                            throwable.getMessage().contains("song is required"))
+                    .expectErrorMatches(throwable ->
+                            throwable instanceof RuntimeException &&
+                                    throwable.getMessage().contains("song is required"))
                     .verify();
         }
 
@@ -271,7 +287,8 @@ class SpotifyServiceImplTest {
                     """;
 
             // When
-            Mono<List<SpotifyData>> result = spotifyService.parseJsonData(jsonData);
+            InputStream inputStream = new ByteArrayInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
+            Mono<List<SpotifyData>> result = spotifyService.parse(inputStream);
 
             // Then
             StepVerifier.create(result)
@@ -284,15 +301,14 @@ class SpotifyServiceImplTest {
         @DisplayName("모든 필수값 필드가 유효할 경우 예외가 발생하지 않는다.")
         void shouldPassValidationWithAllRequiredFields() {
             // Given
-            Mono<List<SpotifyData>> result = spotifyService.parseJsonData(jsonData);
+            InputStream inputStream = new ByteArrayInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
+            Mono<List<SpotifyData>> result = spotifyService.parse(inputStream);
 
             // When & Then
             StepVerifier.create(result)
                     .expectNextMatches(dataList -> dataList.size() == 1 &&
                             dataList.getFirst().getArtistName().equals("!!!") &&
-                            dataList.getFirst().getSongTitle()
-                                    .equals("Even When the Waters Cold")
-                            &&
+                            dataList.getFirst().getSongTitle().equals("Even When the Waters Cold") &&
                             dataList.getFirst().getAlbumName().equals("Thr!!!er"))
                     .verifyComplete();
         }
