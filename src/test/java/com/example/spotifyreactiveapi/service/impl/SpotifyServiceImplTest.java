@@ -1,7 +1,11 @@
 package com.example.spotifyreactiveapi.service.impl;
 
-import com.example.spotifyreactiveapi.controller.dto.SpotifyData;
-import com.example.spotifyreactiveapi.service.SpotifyService;
+import static org.mockito.Mockito.when;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -9,22 +13,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.multipart.MultipartFile;
+
+import com.example.spotifyreactiveapi.config.SpotifyProperties;
+import com.example.spotifyreactiveapi.controller.dto.SpotifyData;
+import com.example.spotifyreactiveapi.service.SpotifyService;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SpotifyServiceImplTest {
 
     @Mock
-    private MultipartFile multipartFile;
+    private SpotifyProperties spotifyProperties;
 
     private SpotifyService spotifyService;
 
@@ -32,7 +33,7 @@ class SpotifyServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        spotifyService = new SpotifyServiceImpl();
+        spotifyService = new SpotifyServiceImpl(spotifyProperties);
 
         jsonData = """
                 [
@@ -64,59 +65,73 @@ class SpotifyServiceImplTest {
     }
 
     @Nested
-    @DisplayName("파일 업로드 검증")
-    class FileUploadValidation {
+    @DisplayName("로컬 파일 경로 검증")
+    class LocalFilePathValidation {
 
         @Test
-        @DisplayName("파일이 Null 이면 예외를 발생시킨다.")
-        void shouldThrowExceptionWhenFileIsNull() {
+        @DisplayName("파일 경로가 null이면 예외를 발생시킨다.")
+        void shouldThrowExceptionWhenFilePathIsNull() {
+            // Given
+            when(spotifyProperties.getFilePath()).thenReturn(null);
+
             // When & Then
-            StepVerifier.create(spotifyService.readFile(null))
-                    .expectErrorMatches(throwable -> throwable instanceof IllegalArgumentException)
+            StepVerifier.create(spotifyService.readFile())
+                    .expectError(RuntimeException.class)
                     .verify();
         }
 
         @Test
-        @DisplayName("파일이 비어있으면 예외를 발생시킨다.")
-        void shouldThrowExceptionWhenFileIsEmpty() throws IOException {
+        @DisplayName("파일 경로가 비어있으면 예외를 발생시킨다.")
+        void shouldThrowExceptionWhenFilePathIsEmpty() {
             // Given
-            when(multipartFile.isEmpty()).thenReturn(true);
+            when(spotifyProperties.getFilePath()).thenReturn("");
 
             // When & Then
-            StepVerifier.create(spotifyService.readFile(multipartFile))
-                    .expectErrorMatches(throwable -> throwable instanceof IllegalArgumentException)
+            StepVerifier.create(spotifyService.readFile())
+                    .expectError(RuntimeException.class)
+                    .verify();
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 파일 경로면 예외를 발생시킨다.")
+        void shouldThrowExceptionWhenFileDoesNotExist() {
+            // Given
+            when(spotifyProperties.getFilePath()).thenReturn("nonexistent.json");
+
+            // When & Then
+            StepVerifier.create(spotifyService.readFile())
+                    .expectError(RuntimeException.class)
                     .verify();
         }
 
         @Test
         @DisplayName("올바른 파일 확장자가 아니면 예외를 발생시킨다.")
-        void shouldThrowExceptionWithNonJsonFile() throws IOException {
+        void shouldThrowExceptionWithNonJsonFile() {
             // Given
-            when(multipartFile.isEmpty()).thenReturn(false);
-            when(multipartFile.getOriginalFilename()).thenReturn("test.txt");
+            when(spotifyProperties.getFilePath()).thenReturn("test.txt");
 
             // When & Then
-            StepVerifier.create(spotifyService.readFile(multipartFile))
-                    .expectErrorMatches(throwable -> throwable instanceof IllegalArgumentException)
+            StepVerifier.create(spotifyService.readFile())
+                    .expectError(RuntimeException.class)
                     .verify();
         }
 
         @Test
-        @DisplayName("파일이 유요할 경우 예외가 발생하지 않는다.")
-        void shouldPassValidationWithJsonFile() throws IOException {
+        @DisplayName("유효한 JSON 파일 경로일 경우 파일을 읽는다.")
+        void shouldReadValidJsonFile() throws Exception {
             // Given
-            when(multipartFile.isEmpty()).thenReturn(false);
-            when(multipartFile.getOriginalFilename()).thenReturn("sample.json");
-            when(multipartFile.getInputStream())
-                    .thenReturn(new ByteArrayInputStream(jsonData.getBytes(StandardCharsets.UTF_8)));
+            Path tempFile = Files.createTempFile("test", ".json");
+            Files.writeString(tempFile, jsonData);
+            when(spotifyProperties.getFilePath()).thenReturn(tempFile.toString());
 
             // When
-            Mono<String> result = spotifyService.readFile(multipartFile);
+            Mono<String> result = spotifyService.readFile();
 
             // Then
             StepVerifier.create(result)
                     .expectNext(jsonData)
                     .verifyComplete();
+
         }
     }
 
@@ -275,7 +290,9 @@ class SpotifyServiceImplTest {
             StepVerifier.create(result)
                     .expectNextMatches(dataList -> dataList.size() == 1 &&
                             dataList.getFirst().getArtistName().equals("!!!") &&
-                            dataList.getFirst().getSongTitle().equals("Even When the Waters Cold") &&
+                            dataList.getFirst().getSongTitle()
+                                    .equals("Even When the Waters Cold")
+                            &&
                             dataList.getFirst().getAlbumName().equals("Thr!!!er"))
                     .verifyComplete();
         }
