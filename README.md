@@ -26,6 +26,13 @@ docker-compose up --build -d
 docker-compose down
 ```
 
+### 서비스 접근
+
+- API 서버: http://localhost:8080
+- Swagger UI: http://localhost:8080/swagger-ui.html
+- Prometheus: http://localhost:9090
+- Grafana: http://localhost:3000
+
 ## 과제 설명
 
 ### 주요 기능
