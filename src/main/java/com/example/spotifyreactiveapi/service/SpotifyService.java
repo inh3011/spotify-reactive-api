@@ -1,18 +1,19 @@
 package com.example.spotifyreactiveapi.service;
 
-import com.example.spotifyreactiveapi.controller.dto.SpotifyData;
-import org.springframework.web.multipart.MultipartFile;
-import reactor.core.publisher.Mono;
-
+import java.io.InputStream;
 import java.util.List;
+
+import com.example.spotifyreactiveapi.controller.dto.SpotifyData;
+
+import reactor.core.publisher.Mono;
 
 public interface SpotifyService {
 
-    Mono<String> readFile(MultipartFile jsonFile);
+    Mono<InputStream> read();
 
-    Mono<List<SpotifyData>> parseJsonData(String jsonData);
+    Mono<List<SpotifyData>> parse(InputStream inputStream);
 
-    Mono<Void> processData(List<SpotifyData> dataList);
+    Mono<Void> save(List<SpotifyData> dataList);
 
-    Mono<Void> processSpotifyFile(MultipartFile jsonFile);
+    Mono<Void> process();
 }
