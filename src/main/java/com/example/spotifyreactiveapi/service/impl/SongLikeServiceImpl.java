@@ -1,12 +1,11 @@
 package com.example.spotifyreactiveapi.service.impl;
 
-import com.example.spotifyreactiveapi.domain.SongLike;
+import com.example.spotifyreactiveapi.mapper.SongLikeMapper;
 import com.example.spotifyreactiveapi.model.SongLikeModel;
 import com.example.spotifyreactiveapi.repository.SongLikeRepository;
 import com.example.spotifyreactiveapi.service.SongLikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -14,29 +13,14 @@ import reactor.core.publisher.Mono;
 public class SongLikeServiceImpl implements SongLikeService {
 
     private final SongLikeRepository songLikeRepository;
+    private final SongLikeMapper songLikeMapper;
 
     @Override
     public Mono<SongLikeModel> save(SongLikeModel songLike) {
         return Mono.just(songLike)
-                .flatMap(this::createSongLike)
+                .map(songLikeMapper::toEntity)
                 .flatMap(songLikeRepository::save)
-                .map(this::convertToModel);
+                .map(songLikeMapper::toModel);
     }
 
-    private Mono<SongLike> createSongLike(SongLikeModel songLike) {
-        SongLike songLikes = SongLike.builder()
-                .songId(songLike.getSongId())
-                .build();
-
-        return Mono.just(songLikes);
-    }
-
-    private SongLikeModel convertToModel(SongLike songLike) {
-        return SongLikeModel.builder()
-                .id(songLike.getId())
-                .songId(songLike.getSongId())
-                .createdAt(songLike.getCreatedAt())
-                .updatedAt(songLike.getUpdatedAt())
-                .build();
-    }
 }
