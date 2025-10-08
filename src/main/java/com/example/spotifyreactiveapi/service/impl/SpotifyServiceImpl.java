@@ -74,21 +74,9 @@ public class SpotifyServiceImpl implements SpotifyService {
     }
 
     @Override
-    public Mono<Void> save(List<SpotifyData> dataList) {
-        return Mono.fromRunnable(() -> {
-            // TODO: 데이터 변환 및 저장 로직
-            // 1. Artist 처리
-            // 2. Album 처리
-            // 3. Song 처리
-        });
-    }
-
-    @Override
-    public Mono<Void> process() {
+    public Mono<List<SpotifyData>> processFile() {
         return read()
-                .flatMap(this::parse)
-                .flatMap(this::save)
-                .then();
+                .flatMap(this::parse);
     }
 
     private void validateFileExists(Path path) {

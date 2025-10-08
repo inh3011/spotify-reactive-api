@@ -1,11 +1,10 @@
 package com.example.spotifyreactiveapi.service;
 
+import com.example.spotifyreactiveapi.controller.dto.SpotifyData;
+import reactor.core.publisher.Mono;
+
 import java.io.InputStream;
 import java.util.List;
-
-import com.example.spotifyreactiveapi.controller.dto.SpotifyData;
-
-import reactor.core.publisher.Mono;
 
 public interface SpotifyService {
 
@@ -13,7 +12,5 @@ public interface SpotifyService {
 
     Mono<List<SpotifyData>> parse(InputStream inputStream);
 
-    Mono<Void> save(List<SpotifyData> dataList);
-
-    Mono<Void> process();
+    Mono<List<SpotifyData>> processFile();
 }
