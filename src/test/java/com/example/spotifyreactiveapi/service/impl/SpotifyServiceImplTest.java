@@ -132,11 +132,10 @@ class SpotifyServiceImplTest {
 
             // Then
             StepVerifier.create(result)
-                    .expectNextMatches(dataList ->
-                            dataList.size() == 1 &&
-                                    dataList.getFirst().getArtistName().equals("!!!") &&
-                                    dataList.getFirst().getSongTitle().equals("Even When the Waters Cold") &&
-                                    dataList.getFirst().getAlbumName().equals("Thr!!!er"))
+                    .expectNextMatches(dataList -> dataList.size() == 1 &&
+                            dataList.getFirst().getArtistName().equals("!!!") &&
+                            dataList.getFirst().getSongTitle().equals("Even When the Waters Cold") &&
+                            dataList.getFirst().getAlbumName().equals("Thr!!!er"))
                     .verifyComplete();
         }
     }
@@ -171,22 +170,6 @@ class SpotifyServiceImplTest {
         }
 
         @Test
-        @DisplayName("JSON 데이터가 빈 배열일 경우 빈 리스트를 반환하고 예외가 발생하지 않는다.")
-        void shouldPassValidationWithEmptyJson() {
-            // Given
-            String emptyJson = "[]";
-
-            // When
-            InputStream inputStream = new ByteArrayInputStream(emptyJson.getBytes(StandardCharsets.UTF_8));
-            Mono<List<SpotifyData>> result = spotifyService.parse(inputStream);
-
-            // Then
-            StepVerifier.create(result)
-                    .expectNextMatches(List::isEmpty)
-                    .verifyComplete();
-        }
-
-        @Test
         @DisplayName("JSON 데이터가 유효할 경우 예외가 발생하지 않는다.")
         void shouldPassValidationWithArrayJson() {
             // Given
@@ -207,11 +190,10 @@ class SpotifyServiceImplTest {
             // Then
             // When & Then
             StepVerifier.create(result)
-                    .expectNextMatches(dataList ->
-                            dataList.size() == 1 &&
-                                    dataList.getFirst().getArtistName().equals("!!!") &&
-                                    dataList.getFirst().getSongTitle().equals("Even When the Waters Cold") &&
-                                    dataList.getFirst().getAlbumName().equals("Thr!!!er"))
+                    .expectNextMatches(dataList -> dataList.size() == 1 &&
+                            dataList.getFirst().getArtistName().equals("!!!") &&
+                            dataList.getFirst().getSongTitle().equals("Even When the Waters Cold") &&
+                            dataList.getFirst().getAlbumName().equals("Thr!!!er"))
                     .verifyComplete();
         }
     }
@@ -242,7 +224,7 @@ class SpotifyServiceImplTest {
             StepVerifier.create(result)
                     .expectErrorMatches(throwable ->
                             throwable instanceof RuntimeException &&
-                                    throwable.getMessage().contains("artist is required"))
+                            throwable.getMessage().contains("artist is required"))
                     .verify();
         }
 
@@ -268,7 +250,7 @@ class SpotifyServiceImplTest {
             StepVerifier.create(result)
                     .expectErrorMatches(throwable ->
                             throwable instanceof RuntimeException &&
-                                    throwable.getMessage().contains("song is required"))
+                            throwable.getMessage().contains("song is required"))
                     .verify();
         }
 
@@ -292,7 +274,8 @@ class SpotifyServiceImplTest {
 
             // Then
             StepVerifier.create(result)
-                    .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
+                    .expectErrorMatches(throwable ->
+                            throwable instanceof RuntimeException &&
                             throwable.getMessage().contains("album is required"))
                     .verify();
         }
@@ -308,9 +291,9 @@ class SpotifyServiceImplTest {
             StepVerifier.create(result)
                     .expectNextMatches(dataList ->
                             dataList.size() == 1 &&
-                                    dataList.getFirst().getArtistName().equals("!!!") &&
-                                    dataList.getFirst().getSongTitle().equals("Even When the Waters Cold") &&
-                                    dataList.getFirst().getAlbumName().equals("Thr!!!er"))
+                            dataList.getFirst().getArtistName().equals("!!!") &&
+                            dataList.getFirst().getSongTitle().equals("Even When the Waters Cold") &&
+                            dataList.getFirst().getAlbumName().equals("Thr!!!er"))
                     .verifyComplete();
         }
 

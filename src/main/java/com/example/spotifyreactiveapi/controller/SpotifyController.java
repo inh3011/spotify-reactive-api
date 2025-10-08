@@ -1,6 +1,6 @@
 package com.example.spotifyreactiveapi.controller;
 
-import com.example.spotifyreactiveapi.service.SpotifyService;
+import com.example.spotifyreactiveapi.service.SpotifySaveService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +15,12 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class SpotifyController {
 
-    private final SpotifyService spotifyService;
+    private final SpotifySaveService spotifySaveService;
 
     @Operation(summary = "데이터 적재 API", description = "데이터를 적재합니다.설정된 파일을 읽고 파싱 및 저장까지 처리합니다.")
     @PostMapping("/process")
     public Mono<String> process() {
-        return spotifyService.process()
+        return spotifySaveService.saveSpotifyData()
                 .then(Mono.just("Processing started successfully."));
     }
 }

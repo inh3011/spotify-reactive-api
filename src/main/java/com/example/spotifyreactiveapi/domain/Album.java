@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.MappedCollection;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Set;
@@ -29,6 +29,6 @@ public class Album extends BaseEntity {
     @Column("artist_id")
     private Long artistId;
 
-    @MappedCollection(idColumn = "album_id")
+    @Transient
     private Set<Song> songs;
 }
