@@ -9,7 +9,6 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -25,12 +24,6 @@ public class Album {
 
     @Column("name")
     private String name;
-
-    @Column("release_date")
-    private LocalDate releaseDate;
-
-    @Column("release_year")
-    private Integer releaseYear;
 
     @Column("artist_id")
     private Long artistId;

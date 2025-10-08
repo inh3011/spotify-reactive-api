@@ -306,10 +306,11 @@ class SpotifyServiceImplTest {
 
             // When & Then
             StepVerifier.create(result)
-                    .expectNextMatches(dataList -> dataList.size() == 1 &&
-                            dataList.getFirst().getArtistName().equals("!!!") &&
-                            dataList.getFirst().getSongTitle().equals("Even When the Waters Cold") &&
-                            dataList.getFirst().getAlbumName().equals("Thr!!!er"))
+                    .expectNextMatches(dataList ->
+                            dataList.size() == 1 &&
+                                    dataList.getFirst().getArtistName().equals("!!!") &&
+                                    dataList.getFirst().getSongTitle().equals("Even When the Waters Cold") &&
+                                    dataList.getFirst().getAlbumName().equals("Thr!!!er"))
                     .verifyComplete();
         }
 

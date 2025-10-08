@@ -9,6 +9,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -31,59 +32,14 @@ public class Song {
     @Column("album_id")
     private Long albumId;
 
-    @Column("length_ms")
-    private Integer lengthMs;
+    @Column("release_date")
+    private LocalDate releaseDate;
 
-    @Column("explicit")
-    private Boolean explicit;
-
-    @Column("popularity")
-    private Integer popularity;
+    @Column("release_year")
+    private Integer releaseYear;
 
     @Column("like_count")
     private Long likeCount;
-
-    @Column("key_text")
-    private String keyText;
-
-    @Column("tempo")
-    private Double tempo;
-
-    @Column("loudness_db")
-    private Double loudnessDb;
-
-    @Column("time_signature")
-    private String timeSignature;
-
-    @Column("genre")
-    private String genre;
-
-    @Column("emotion")
-    private String emotion;
-
-    @Column("lyrics_text")
-    private String lyricsText;
-
-    @Column("energy")
-    private Integer energy;
-
-    @Column("danceability")
-    private Integer danceability;
-
-    @Column("positiveness")
-    private Integer positiveness;
-
-    @Column("speechiness")
-    private Integer speechiness;
-
-    @Column("liveness")
-    private Integer liveness;
-
-    @Column("acousticness")
-    private Integer acousticness;
-
-    @Column("instrumentalness")
-    private Integer instrumentalness;
 
     @Column("created_at")
     private LocalDateTime createdAt;
