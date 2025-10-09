@@ -19,8 +19,11 @@ public class SongLikeModel {
     private LocalDateTime updatedAt;
 
     public static SongLikeModel create(Long songId) {
+        LocalDateTime now = LocalDateTime.now();
         return SongLikeModel.builder()
                 .songId(songId)
+                .createdAt(now)
+                .updatedAt(now)
                 .build();
     }
 }

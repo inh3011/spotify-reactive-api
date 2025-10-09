@@ -32,7 +32,7 @@ class SpotifySaveServiceImplTest {
     @InjectMocks
     private SpotifySaveServiceImpl spotifySaveServiceImpl;
 
-    private SpotifyData validData() {
+    private SpotifyData data() {
         return SpotifyData.builder()
                 .artistName("Artist")
                 .albumName("Album")
@@ -60,24 +60,24 @@ class SpotifySaveServiceImplTest {
         @Test
         @DisplayName("유효한 데이터면 Song이 저장된다.")
         void savesSong() {
-            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(validData())));
-            when(songService.save(any(SongModel.class))).thenReturn(Mono.just(song()));
+            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(data())));
+            when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
 
             verify(spotifyService).processFile();
-            verify(songService).save(any(SongModel.class));
+            verify(songService).saveOrUpdate(any(SongModel.class));
         }
 
         @Test
         @DisplayName("Song 저장 시 올바른 데이터가 전달된다.")
         void correctDataPassed() {
-            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(validData())));
-            when(songService.save(any(SongModel.class))).thenReturn(Mono.just(song()));
+            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(data())));
+            when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
 
-            verify(songService).save(argThat(songModel -> songModel.getArtistName().equals("Artist") &&
+            verify(songService).saveOrUpdate(argThat(songModel -> songModel.getArtistName().equals("Artist") &&
                     songModel.getAlbumName().equals("Album") &&
                     songModel.getSongTitle().equals("Song") &&
                     songModel.getReleaseDate().equals(LocalDate.of(2023, 1, 1)) &&
@@ -87,34 +87,52 @@ class SpotifySaveServiceImplTest {
     }
 
     @Nested
-    @DisplayName("앨범명이 비어 있을 때 동작")
-    class AlbumNameBlank {
+    @DisplayName("필드가 null일 때 동작")
+    class NullFields {
         @Test
-        @DisplayName("앨범명이 null이어도 Song이 저장된다.")
-        void savesSongWithNullAlbumName() {
-            SpotifyData spotifyData = validData();
-            spotifyData.setAlbumName(null);
+        @DisplayName("artist_name이 null이어도 Song이 저장된다.")
+        void savesSongWithNullArtistName() {
+            SpotifyData spotifyData = data();
+            spotifyData.setArtistName(null);
 
             when(spotifyService.processFile()).thenReturn(Mono.just(List.of(spotifyData)));
-            when(songService.save(any(SongModel.class))).thenReturn(Mono.just(song()));
+            when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
 
-            verify(songService).save(argThat(songModel -> songModel.getAlbumName() == null));
+            verify(songService).saveOrUpdate(argThat(songModel -> songModel.getArtistName() == null));
         }
 
         @Test
-        @DisplayName("앨범명이 공백이어도 Song이 저장된다.")
-        void savesSongWithBlankAlbumName() {
-            SpotifyData spotifyData = validData();
-            spotifyData.setAlbumName("");
+        @DisplayName("song_title이 null이어도 Song이 저장된다.")
+        void savesSongWithNullSongTitle() {
+            SpotifyData spotifyData = data();
+            spotifyData.setSongTitle(null);
 
             when(spotifyService.processFile()).thenReturn(Mono.just(List.of(spotifyData)));
-            when(songService.save(any(SongModel.class))).thenReturn(Mono.just(song()));
+            when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
 
-            verify(songService).save(argThat(songModel -> songModel.getAlbumName().isEmpty()));
+            verify(songService).saveOrUpdate(argThat(songModel -> songModel.getSongTitle() == null));
+        }
+
+        @Test
+        @DisplayName("모든 필드가 null이어도 Song이 저장된다.")
+        void savesSongWithAllNullFields() {
+            SpotifyData spotifyData = data();
+            spotifyData.setArtistName(null);
+            spotifyData.setAlbumName(null);
+            spotifyData.setSongTitle(null);
+
+            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(spotifyData)));
+            when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
+
+            StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
+
+            verify(songService).saveOrUpdate(argThat(songModel -> songModel.getArtistName() == null &&
+                    songModel.getAlbumName() == null &&
+                    songModel.getSongTitle() == null));
         }
     }
 
@@ -124,22 +142,22 @@ class SpotifySaveServiceImplTest {
         @Test
         @DisplayName("유효한 날짜(YYYY-MM-DD)면 releaseDate/Year가 정상 전달된다.")
         void validDatePropagates() {
-            SpotifyData spotifyData = validData();
+            SpotifyData spotifyData = data();
             spotifyData.setReleaseDate("2023-01-01");
             when(spotifyService.processFile()).thenReturn(Mono.just(List.of(spotifyData)));
-            when(songService.save(any(SongModel.class))).thenReturn(Mono.just(song()));
+            when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
 
-            verify(songService).save(argThat(songModel ->
-                    songModel.getReleaseDate().equals(LocalDate.of(2023, 1, 1)) &&
-                    songModel.getReleaseYear().equals(2023)));
+            verify(songService)
+                    .saveOrUpdate(argThat(songModel -> songModel.getReleaseDate().equals(LocalDate.of(2023, 1, 1)) &&
+                            songModel.getReleaseYear().equals(2023)));
         }
 
         @Test
         @DisplayName("잘못된 날짜 형식이면 예외가 발생한다.")
         void invalidDatePropagatesError() {
-            SpotifyData spotifyData = validData();
+            SpotifyData spotifyData = data();
             spotifyData.setReleaseDate("2023/01/01");
             when(spotifyService.processFile()).thenReturn(Mono.just(List.of(spotifyData)));
 
@@ -149,15 +167,31 @@ class SpotifySaveServiceImplTest {
         }
 
         @Test
-        @DisplayName("날짜가 null이면 예외가 발생한다.")
-        void nullDatePropagatesError() {
-            SpotifyData spotifyData = validData();
+        @DisplayName("날짜가 null이면 releaseDate와 releaseYear가 null로 저장된다.")
+        void nullDateSavesAsNull() {
+            SpotifyData spotifyData = data();
             spotifyData.setReleaseDate(null);
             when(spotifyService.processFile()).thenReturn(Mono.just(List.of(spotifyData)));
+            when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
-            StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData())
-                    .expectError(NullPointerException.class)
-                    .verify();
+            StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
+
+            verify(songService).saveOrUpdate(argThat(songModel -> songModel.getReleaseDate() == null &&
+                    songModel.getReleaseYear() == null));
+        }
+
+        @Test
+        @DisplayName("날짜가 빈 문자열이면 releaseDate와 releaseYear가 null로 저장된다.")
+        void emptyDateSavesAsNull() {
+            SpotifyData spotifyData = data();
+            spotifyData.setReleaseDate("");
+            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(spotifyData)));
+            when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
+
+            StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
+
+            verify(songService).saveOrUpdate(argThat(songModel -> songModel.getReleaseDate() == null &&
+                    songModel.getReleaseYear() == null));
         }
     }
 
@@ -167,8 +201,8 @@ class SpotifySaveServiceImplTest {
         @Test
         @DisplayName("파일 처리 서비스는 한 번만 호출된다.")
         void processFileCalledOnce() {
-            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(validData())));
-            when(songService.save(any(SongModel.class))).thenReturn(Mono.just(song()));
+            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(data())));
+            when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
             verify(spotifyService, times(1)).processFile();
@@ -177,22 +211,23 @@ class SpotifySaveServiceImplTest {
         @Test
         @DisplayName("Song 서비스는 데이터 개수만큼 호출된다.")
         void songServiceCalledForEachData() {
-            SpotifyData data1 = validData();
-            SpotifyData data2 = validData();
+            SpotifyData data1 = data();
+            SpotifyData data2 = data();
             data2.setSongTitle("Song2");
 
             when(spotifyService.processFile()).thenReturn(Mono.just(List.of(data1, data2)));
-            when(songService.save(any(SongModel.class))).thenReturn(Mono.just(song()));
+            when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
-            verify(songService, times(2)).save(any(SongModel.class));
+            verify(songService, times(2)).saveOrUpdate(any(SongModel.class));
         }
 
         @Test
         @DisplayName("Song 서비스 에러가 발생하면 예외가 전파된다.")
         void songServiceErrorPropagates() {
-            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(validData())));
-            when(songService.save(any(SongModel.class))).thenReturn(Mono.error(new RuntimeException("DB error")));
+            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(data())));
+            when(songService.saveOrUpdate(any(SongModel.class)))
+                    .thenReturn(Mono.error(new RuntimeException("DB error")));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData())
                     .expectError(RuntimeException.class)

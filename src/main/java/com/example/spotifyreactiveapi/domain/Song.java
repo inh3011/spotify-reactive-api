@@ -11,15 +11,16 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Table("song")
-public class Song extends BaseEntity {
+public class Song {
 
     @Id
     private Long id;
@@ -41,6 +42,12 @@ public class Song extends BaseEntity {
 
     @Column("like_count")
     private Long likeCount;
+
+    @Column("created_at")
+    private LocalDateTime createdAt;
+
+    @Column("updated_at")
+    private LocalDateTime updatedAt;
 
     @Transient
     private Set<SongLike> songLikes;
