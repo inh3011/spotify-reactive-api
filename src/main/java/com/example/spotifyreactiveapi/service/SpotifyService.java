@@ -1,0 +1,17 @@
+package com.example.spotifyreactiveapi.service;
+
+import com.example.spotifyreactiveapi.controller.dto.SpotifyData;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.io.InputStream;
+import java.util.List;
+
+public interface SpotifyService {
+
+    Mono<InputStream> read();
+
+    Flux<SpotifyData> parse(InputStream inputStream);
+
+    Flux<SpotifyData> processFile();
+}
