@@ -1,0 +1,25 @@
+DROP TABLE IF EXISTS song_like CASCADE;
+DROP TABLE IF EXISTS song CASCADE;
+DROP TABLE IF EXISTS album CASCADE;
+DROP TABLE IF EXISTS artist CASCADE;
+
+-- song 테이블 생성
+CREATE TABLE song (
+    id BIGSERIAL PRIMARY KEY,
+    artist_name VARCHAR(255),
+    album_name VARCHAR(255),
+    song_title VARCHAR(255),
+    release_date DATE,
+    release_year INTEGER,
+    like_count BIGINT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- song_like 테이블 재생성 (songs 참조)
+CREATE TABLE song_like (
+    id BIGSERIAL PRIMARY KEY,
+    song_id BIGINT NOT NULL REFERENCES song(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
