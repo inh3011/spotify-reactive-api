@@ -16,6 +16,8 @@ CREATE TABLE song (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE song ADD CONSTRAINT uk_song_artist_album_title UNIQUE (artist_name, album_name, song_title);
+
 -- song_like 테이블 재생성 (songs 참조)
 CREATE TABLE song_like (
     id BIGSERIAL PRIMARY KEY,

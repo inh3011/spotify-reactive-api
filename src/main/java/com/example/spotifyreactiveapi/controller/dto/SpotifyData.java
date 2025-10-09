@@ -2,7 +2,6 @@ package com.example.spotifyreactiveapi.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,15 +15,12 @@ import lombok.NoArgsConstructor;
 public class SpotifyData {
 
     @JsonProperty("Artist(s)")
-    @NotBlank(message = "artist is required")
     private String artistName;
 
     @JsonProperty("song")
-    @NotBlank(message = "song is required")
     private String songTitle;
 
     @JsonProperty("Album")
-    @NotBlank(message = "album is required")
     private String albumName;
 
     @JsonProperty("Release Date")

@@ -22,4 +22,12 @@ public class SongServiceImpl implements SongService {
                 .flatMap(songRepository::save)
                 .map(songMapper::toModel);
     }
+
+    @Override
+    public Mono<SongModel> saveOrUpdate(SongModel song) {
+        return Mono.just(song)
+                .map(songMapper::toEntity)
+                .flatMap(songRepository::saveOrUpdate)
+                .map(songMapper::toModel);
+    }
 }

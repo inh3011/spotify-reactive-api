@@ -6,4 +6,6 @@ import reactor.core.publisher.Mono;
 public interface SongService {
 
     Mono<SongModel> save(SongModel song);
+
+    Mono<SongModel> saveOrUpdate(SongModel song);
 }
