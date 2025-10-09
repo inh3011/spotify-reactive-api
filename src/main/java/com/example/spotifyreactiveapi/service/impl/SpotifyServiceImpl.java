@@ -12,6 +12,7 @@ import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -45,7 +46,7 @@ public class SpotifyServiceImpl implements SpotifyService {
     }
 
     @Override
-    public Mono<List<SpotifyData>> parse(InputStream inputStream) {
+    public Flux<SpotifyData> parse(InputStream inputStream) {
         return Mono.fromCallable(() -> {
             JsonFactory factory = new JsonFactory();
             ObjectMapper objectMapper = new ObjectMapper();
@@ -73,13 +74,13 @@ public class SpotifyServiceImpl implements SpotifyService {
                 log.error("JSON parsing failed. message={}, cause={}", e.getMessage(), e.getClass().getSimpleName());
                 throw new RuntimeException("Failed to parse JSON data", e);
             }
-        });
+        }).flatMapMany(Flux::fromIterable);
     }
 
     @Override
-    public Mono<List<SpotifyData>> processFile() {
+    public Flux<SpotifyData> processFile() {
         return read()
-                .flatMap(this::parse);
+                .flatMapMany(this::parse);
     }
 
     private void validateFileExists(Path path) {

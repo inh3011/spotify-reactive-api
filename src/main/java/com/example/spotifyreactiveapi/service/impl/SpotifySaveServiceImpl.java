@@ -24,9 +24,8 @@ public class SpotifySaveServiceImpl implements SpotifySaveService {
     @Override
     public Mono<Void> saveSpotifyData() {
         return spotifyService.processFile()
-                .flatMap(dataList -> Flux.fromIterable(dataList)
-                        .flatMap(this::saveSong)
-                        .then());
+                .flatMap(this::saveSong)
+                .then();
     }
 
     private Mono<Void> saveSong(SpotifyData data) {
@@ -41,10 +40,12 @@ public class SpotifySaveServiceImpl implements SpotifySaveService {
                 releaseYear);
 
         log.info("Saving song: artist={}, album={}, title={}, releaseDate={}, releaseYear={}",
-                data.getArtistName(), data.getAlbumName(), data.getSongTitle(), releaseDate, releaseYear);
+                data.getArtistName(), data.getAlbumName(), data.getSongTitle(), releaseDate,
+                releaseYear);
 
         return songService.saveOrUpdate(songModel)
-                .doOnSuccess(savedSong -> log.info("Successfully saved/updated song with ID: {}", savedSong.getId()))
+                .doOnSuccess(savedSong -> log.info("Successfully saved/updated song with ID: {}",
+                        savedSong.getId()))
                 .doOnError(error -> log.error("Failed to save/update song: {}", error.getMessage()))
                 .then();
     }

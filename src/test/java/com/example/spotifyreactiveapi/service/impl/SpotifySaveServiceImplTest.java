@@ -12,11 +12,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -60,7 +60,7 @@ class SpotifySaveServiceImplTest {
         @Test
         @DisplayName("유효한 데이터면 Song이 저장된다.")
         void savesSong() {
-            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(data())));
+            when(spotifyService.processFile()).thenReturn(Flux.just(data()));
             when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
@@ -72,7 +72,7 @@ class SpotifySaveServiceImplTest {
         @Test
         @DisplayName("Song 저장 시 올바른 데이터가 전달된다.")
         void correctDataPassed() {
-            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(data())));
+            when(spotifyService.processFile()).thenReturn(Flux.just(data()));
             when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
@@ -95,7 +95,7 @@ class SpotifySaveServiceImplTest {
             SpotifyData spotifyData = data();
             spotifyData.setArtistName(null);
 
-            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(spotifyData)));
+            when(spotifyService.processFile()).thenReturn(Flux.just(spotifyData));
             when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
@@ -109,7 +109,7 @@ class SpotifySaveServiceImplTest {
             SpotifyData spotifyData = data();
             spotifyData.setSongTitle(null);
 
-            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(spotifyData)));
+            when(spotifyService.processFile()).thenReturn(Flux.just(spotifyData));
             when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
@@ -125,7 +125,7 @@ class SpotifySaveServiceImplTest {
             spotifyData.setAlbumName(null);
             spotifyData.setSongTitle(null);
 
-            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(spotifyData)));
+            when(spotifyService.processFile()).thenReturn(Flux.just(spotifyData));
             when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
@@ -144,7 +144,7 @@ class SpotifySaveServiceImplTest {
         void validDatePropagates() {
             SpotifyData spotifyData = data();
             spotifyData.setReleaseDate("2023-01-01");
-            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(spotifyData)));
+            when(spotifyService.processFile()).thenReturn(Flux.just(spotifyData));
             when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
@@ -159,7 +159,7 @@ class SpotifySaveServiceImplTest {
         void invalidDatePropagatesError() {
             SpotifyData spotifyData = data();
             spotifyData.setReleaseDate("2023/01/01");
-            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(spotifyData)));
+            when(spotifyService.processFile()).thenReturn(Flux.just(spotifyData));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData())
                     .expectError(DateTimeParseException.class)
@@ -171,7 +171,7 @@ class SpotifySaveServiceImplTest {
         void nullDateSavesAsNull() {
             SpotifyData spotifyData = data();
             spotifyData.setReleaseDate(null);
-            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(spotifyData)));
+            when(spotifyService.processFile()).thenReturn(Flux.just(spotifyData));
             when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
@@ -185,7 +185,7 @@ class SpotifySaveServiceImplTest {
         void emptyDateSavesAsNull() {
             SpotifyData spotifyData = data();
             spotifyData.setReleaseDate("");
-            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(spotifyData)));
+            when(spotifyService.processFile()).thenReturn(Flux.just(spotifyData));
             when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
@@ -201,7 +201,7 @@ class SpotifySaveServiceImplTest {
         @Test
         @DisplayName("파일 처리 서비스는 한 번만 호출된다.")
         void processFileCalledOnce() {
-            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(data())));
+            when(spotifyService.processFile()).thenReturn(Flux.just(data()));
             when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
@@ -215,7 +215,7 @@ class SpotifySaveServiceImplTest {
             SpotifyData data2 = data();
             data2.setSongTitle("Song2");
 
-            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(data1, data2)));
+            when(spotifyService.processFile()).thenReturn(Flux.just(data1, data2));
             when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
@@ -225,7 +225,7 @@ class SpotifySaveServiceImplTest {
         @Test
         @DisplayName("Song 서비스 에러가 발생하면 예외가 전파된다.")
         void songServiceErrorPropagates() {
-            when(spotifyService.processFile()).thenReturn(Mono.just(List.of(data())));
+            when(spotifyService.processFile()).thenReturn(Flux.just(data()));
             when(songService.saveOrUpdate(any(SongModel.class)))
                     .thenReturn(Mono.error(new RuntimeException("DB error")));
 
