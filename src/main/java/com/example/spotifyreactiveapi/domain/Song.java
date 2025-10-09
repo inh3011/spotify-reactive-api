@@ -6,8 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
@@ -24,14 +24,14 @@ public class Song extends BaseEntity {
     @Id
     private Long id;
 
-    @Column("title")
-    private String title;
+    @Column("artist_name")
+    private String artistName;
 
-    @Column("artist_id")
-    private Long artistId;
+    @Column("album_name")
+    private String albumName;
 
-    @Column("album_id")
-    private Long albumId;
+    @Column("song_title")
+    private String songTitle;
 
     @Column("release_date")
     private LocalDate releaseDate;
@@ -42,6 +42,6 @@ public class Song extends BaseEntity {
     @Column("like_count")
     private Long likeCount;
 
-    @MappedCollection(idColumn = "song_id")
+    @Transient
     private Set<SongLike> songLikes;
 }

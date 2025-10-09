@@ -1,6 +1,5 @@
 package com.example.spotifyreactiveapi.service.impl;
 
-import com.example.spotifyreactiveapi.domain.Song;
 import com.example.spotifyreactiveapi.mapper.SongMapper;
 import com.example.spotifyreactiveapi.model.SongModel;
 import com.example.spotifyreactiveapi.repository.SongRepository;

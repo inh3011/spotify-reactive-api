@@ -15,9 +15,9 @@ import java.time.LocalDateTime;
 public class SongModel {
 
     private Long id;
-    private String title;
-    private Long artistId;
-    private Long albumId;
+    private String artistName;
+    private String albumName;
+    private String songTitle;
     private LocalDate releaseDate;
     private Integer releaseYear;
     private Long likeCount;
@@ -25,15 +25,15 @@ public class SongModel {
     private LocalDateTime updatedAt;
 
     public static SongModel create(
-            String title,
-            Long artistId,
-            Long albumId,
+            String artistName,
+            String albumName,
+            String songTitle,
             LocalDate releaseDate,
             Integer releaseYear) {
         return SongModel.builder()
-                .title(title)
-                .artistId(artistId)
-                .albumId(albumId)
+                .artistName(artistName)
+                .albumName(albumName)
+                .songTitle(songTitle)
                 .releaseDate(releaseDate)
                 .releaseYear(releaseYear)
                 .likeCount(0L)
