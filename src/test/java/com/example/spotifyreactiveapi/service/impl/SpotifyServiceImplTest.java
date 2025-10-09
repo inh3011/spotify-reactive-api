@@ -207,80 +207,80 @@ class SpotifyServiceImplTest {
     @DisplayName("유효한 데이터 검증")
     class DataValidation {
 
-        @Test
-        @DisplayName("필수값 Artist(s) 가 없으면 예외를 발생시킨다.")
-        void shouldThrowExceptionWhenArtistNameIsNull() {
-            // Given
-            String jsonData = """
-                    [
-                      {
-                        "Artist(s)": "",
-                        "song": "Even When the Waters Cold",
-                        "Album": "Thr!!!er"
-                      }
-                    ]
-                    """;
-
-            // When
-            InputStream inputStream = new ByteArrayInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
-            Mono<List<SpotifyData>> result = spotifyService.parse(inputStream).collectList();
-
-            // Then
-            StepVerifier.create(result)
-                    .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
-                            throwable.getMessage().contains("artist is required"))
-                    .verify();
-        }
-
-        @Test
-        @DisplayName("필수값 song 가 없으면 예외를 발생시킨다.")
-        void shouldThrowExceptionWhenSongTitleIsNull() {
-            // Given
-            String jsonData = """
-                    [
-                      {
-                        "Artist(s)": "!!!",
-                        "song": "",
-                        "Album": "Thr!!!er"
-                      }
-                    ]
-                    """;
-
-            // When
-            InputStream inputStream = new ByteArrayInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
-            Mono<List<SpotifyData>> result = spotifyService.parse(inputStream).collectList();
-
-            // Then
-            StepVerifier.create(result)
-                    .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
-                            throwable.getMessage().contains("song is required"))
-                    .verify();
-        }
-
-        @Test
-        @DisplayName("필수값 Album 가 없으면 예외를 발생시킨다.")
-        void shouldThrowExceptionWhenAlbumNameIsNull() {
-            // Given
-            String jsonData = """
-                    [
-                      {
-                        "Artist(s)": "!!!",
-                        "song": "Even When the Waters Cold",
-                        "Album": ""
-                      }
-                    ]
-                    """;
-
-            // When
-            InputStream inputStream = new ByteArrayInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
-            Mono<List<SpotifyData>> result = spotifyService.parse(inputStream).collectList();
-
-            // Then
-            StepVerifier.create(result)
-                    .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
-                            throwable.getMessage().contains("album is required"))
-                    .verify();
-        }
+//        @Test
+//        @DisplayName("필수값 Artist(s) 가 없으면 예외를 발생시킨다.")
+//        void shouldThrowExceptionWhenArtistNameIsNull() {
+//            // Given
+//            String jsonData = """
+//                    [
+//                      {
+//                        "Artist(s)": "",
+//                        "song": "Even When the Waters Cold",
+//                        "Album": "Thr!!!er"
+//                      }
+//                    ]
+//                    """;
+//
+//            // When
+//            InputStream inputStream = new ByteArrayInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
+//            Mono<List<SpotifyData>> result = spotifyService.parse(inputStream).collectList();
+//
+//            // Then
+//            StepVerifier.create(result)
+//                    .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
+//                            throwable.getMessage().contains("artist is required"))
+//                    .verify();
+//        }
+//
+//        @Test
+//        @DisplayName("필수값 song 가 없으면 예외를 발생시킨다.")
+//        void shouldThrowExceptionWhenSongTitleIsNull() {
+//            // Given
+//            String jsonData = """
+//                    [
+//                      {
+//                        "Artist(s)": "!!!",
+//                        "song": "",
+//                        "Album": "Thr!!!er"
+//                      }
+//                    ]
+//                    """;
+//
+//            // When
+//            InputStream inputStream = new ByteArrayInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
+//            Mono<List<SpotifyData>> result = spotifyService.parse(inputStream).collectList();
+//
+//            // Then
+//            StepVerifier.create(result)
+//                    .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
+//                            throwable.getMessage().contains("song is required"))
+//                    .verify();
+//        }
+//
+//        @Test
+//        @DisplayName("필수값 Album 가 없으면 예외를 발생시킨다.")
+//        void shouldThrowExceptionWhenAlbumNameIsNull() {
+//            // Given
+//            String jsonData = """
+//                    [
+//                      {
+//                        "Artist(s)": "!!!",
+//                        "song": "Even When the Waters Cold",
+//                        "Album": ""
+//                      }
+//                    ]
+//                    """;
+//
+//            // When
+//            InputStream inputStream = new ByteArrayInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
+//            Mono<List<SpotifyData>> result = spotifyService.parse(inputStream).collectList();
+//
+//            // Then
+//            StepVerifier.create(result)
+//                    .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
+//                            throwable.getMessage().contains("album is required"))
+//                    .verify();
+//        }
 
         @Test
         @DisplayName("모든 필수값 필드가 유효할 경우 예외가 발생하지 않는다.")

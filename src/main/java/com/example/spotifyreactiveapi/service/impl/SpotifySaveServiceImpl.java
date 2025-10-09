@@ -30,7 +30,8 @@ public class SpotifySaveServiceImpl implements SpotifySaveService {
 
     private Mono<Void> saveSong(SpotifyData data) {
         LocalDate releaseDate = data.getReleaseDate() != null ? LocalDate.parse(data.getReleaseDate()) : null;
-        Integer releaseYear = data.getReleaseDate() != null ? LocalDate.parse(data.getReleaseDate()).getYear() : null;
+        Integer releaseYear = data.getReleaseDate() != null ? LocalDate.parse(data.getReleaseDate()).getYear()
+                : null;
 
         SongModel songModel = SongModel.create(
                 data.getArtistName(),

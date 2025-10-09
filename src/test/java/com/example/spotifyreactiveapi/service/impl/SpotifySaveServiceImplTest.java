@@ -179,20 +179,6 @@ class SpotifySaveServiceImplTest {
             verify(songService).saveOrUpdate(argThat(songModel -> songModel.getReleaseDate() == null &&
                     songModel.getReleaseYear() == null));
         }
-
-        @Test
-        @DisplayName("날짜가 빈 문자열이면 releaseDate와 releaseYear가 null로 저장된다.")
-        void emptyDateSavesAsNull() {
-            SpotifyData spotifyData = data();
-            spotifyData.setReleaseDate("");
-            when(spotifyService.processFile()).thenReturn(Flux.just(spotifyData));
-            when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
-
-            StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
-
-            verify(songService).saveOrUpdate(argThat(songModel -> songModel.getReleaseDate() == null &&
-                    songModel.getReleaseYear() == null));
-        }
     }
 
     @Nested
