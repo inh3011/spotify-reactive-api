@@ -4,11 +4,11 @@ import com.example.spotifyreactiveapi.config.SpotifyProperties;
 import com.example.spotifyreactiveapi.controller.dto.SpotifyData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JsonFileReader implements ItemReader<SpotifyData> {
@@ -37,7 +38,7 @@ public class JsonFileReader implements ItemReader<SpotifyData> {
         if (dataIterator != null && dataIterator.hasNext()) {
             return dataIterator.next();
         }
-        System.out.println("No more data to read");
+        log.info("No more data to read");
         return null;
     }
 
@@ -54,6 +55,6 @@ public class JsonFileReader implements ItemReader<SpotifyData> {
         this.dataIterator = spotifyDataList.iterator();
         this.initialized = true;
 
-        System.out.println("총 " + spotifyDataList.size() + "개의 데이터를 읽었습니다.");
+        log.info("총 {}개의 데이터를 읽었습니다.", spotifyDataList.size());
     }
 }
