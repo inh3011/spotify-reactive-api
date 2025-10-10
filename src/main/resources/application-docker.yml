@@ -24,8 +24,8 @@ spotify:
 
 logging:
   level:
-    org.springframework.r2dbc: DEBUG
-    io.r2dbc.postgresql: DEBUG
+    org.springframework.r2dbc: INFO
+    io.r2dbc.postgresql: INFO
 
 management:
   endpoints:
@@ -35,11 +35,9 @@ management:
   endpoint:
     health:
       show-details: always
-    prometheus:
-      enabled: true
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true
 
 springdoc:

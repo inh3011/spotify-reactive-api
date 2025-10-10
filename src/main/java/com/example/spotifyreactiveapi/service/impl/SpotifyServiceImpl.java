@@ -34,47 +34,42 @@ public class SpotifyServiceImpl implements SpotifyService {
     @Override
     public Mono<InputStream> read() {
         return Mono.fromCallable(() -> {
-            String filePath = spotifyProperties.getFilePath();
-            Path path = Paths.get(filePath);
+                    String filePath = spotifyProperties.getFilePath();
+                    Path path = Paths.get(filePath);
 
-            validateFileExists(path);
-            validateFileExtension(filePath);
+                    validateFileExists(path);
+                    validateFileExtension(filePath);
 
-            return Files.newInputStream(path);
-        })
+                    return Files.newInputStream(path);
+                })
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override
     public Flux<SpotifyData> parse(InputStream inputStream) {
-        return Mono.fromCallable(() -> {
+        return Flux.create(emitter -> {
             JsonFactory factory = new JsonFactory();
             ObjectMapper objectMapper = new ObjectMapper();
 
-            try (InputStream is = inputStream;
-                    JsonParser parser = factory.createParser(is);
-                    var validatorFactory = Validation.buildDefaultValidatorFactory()) {
+            try (JsonParser parser = factory.createParser(inputStream);
+                 var validatorFactory = Validation.buildDefaultValidatorFactory()) {
 
                 Validator validator = validatorFactory.getValidator();
 
-                List<SpotifyData> dataList = new ArrayList<>();
-
-                while (parser.nextToken() != null && parser.currentToken() == JsonToken.START_OBJECT) {
-                    SpotifyData data = objectMapper.readValue(parser, SpotifyData.class);
-                    try {
+                while (parser.nextToken() != null) {
+                    if (parser.currentToken() == JsonToken.START_OBJECT) {
+                        SpotifyData data = objectMapper.readValue(parser, SpotifyData.class);
                         validateData(data, validator);
-                        dataList.add(data);
-                    } catch (RuntimeException ex) {
-                        log.warn("Skip invalid record. reason={}, record={}", ex.getMessage(), data);
+                        emitter.next(data);
                     }
                 }
 
-                return dataList;
+                emitter.complete();
             } catch (IOException e) {
                 log.error("JSON parsing failed. message={}, cause={}", e.getMessage(), e.getClass().getSimpleName());
-                throw new RuntimeException("Failed to parse JSON data", e);
+                emitter.error(new RuntimeException("Failed to parse JSON data", e));
             }
-        }).flatMapMany(Flux::fromIterable);
+        });
     }
 
     @Override

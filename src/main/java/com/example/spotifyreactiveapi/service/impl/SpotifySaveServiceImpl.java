@@ -8,7 +8,6 @@ import com.example.spotifyreactiveapi.service.SpotifyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
@@ -40,13 +39,12 @@ public class SpotifySaveServiceImpl implements SpotifySaveService {
                 releaseDate,
                 releaseYear);
 
-        log.info("Saving song: artist={}, album={}, title={}, releaseDate={}, releaseYear={}",
+        log.debug("Saving song: artist={}, album={}, title={}, releaseDate={}, releaseYear={}",
                 data.getArtistName(), data.getAlbumName(), data.getSongTitle(), releaseDate,
                 releaseYear);
 
         return songService.saveOrUpdate(songModel)
-                .doOnSuccess(savedSong -> log.info("Successfully saved/updated song with ID: {}",
-                        savedSong.getId()))
+                .doOnSuccess(savedSong -> log.debug("Successfully saved song with ID: {}", savedSong.getId()))
                 .doOnError(error -> log.error("Failed to save/update song: {}", error.getMessage()))
                 .then();
     }
