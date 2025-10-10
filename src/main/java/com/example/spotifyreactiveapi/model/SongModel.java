@@ -29,8 +29,10 @@ public class SongModel {
             String albumName,
             String songTitle,
             LocalDate releaseDate,
-            Integer releaseYear) {
+            Integer releaseYear
+    ) {
         LocalDateTime now = LocalDateTime.now();
+
         return SongModel.builder()
                 .artistName(artistName)
                 .albumName(albumName)
