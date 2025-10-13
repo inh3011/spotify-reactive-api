@@ -16,11 +16,10 @@ public class SongLikeServiceImpl implements SongLikeService {
     private final SongLikeMapper songLikeMapper;
 
     @Override
-    public Mono<SongLikeModel> save(SongLikeModel songLike) {
-        return Mono.just(songLike)
+    public Mono<SongLikeModel> save(Long songId) {
+        return Mono.just(SongLikeModel.create(songId))
                 .map(songLikeMapper::toEntity)
                 .flatMap(songLikeRepository::save)
                 .map(songLikeMapper::toModel);
     }
-
 }
