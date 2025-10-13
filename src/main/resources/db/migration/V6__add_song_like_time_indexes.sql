@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS idx_created_at ON song_like (created_at DESC);
