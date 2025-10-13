@@ -1,6 +1,7 @@
 package com.example.spotifyreactiveapi.service.impl;
 
 import com.example.spotifyreactiveapi.controller.dto.AlbumCountResponseDto;
+import com.example.spotifyreactiveapi.mapper.AlbumCountMapper;
 import com.example.spotifyreactiveapi.repository.AlbumCountRetrieveRepository;
 import com.example.spotifyreactiveapi.service.AlbumCountService;
 import lombok.RequiredArgsConstructor;
@@ -14,16 +15,16 @@ import reactor.core.publisher.Mono;
 public class AlbumCountServiceImpl implements AlbumCountService {
 
     private final AlbumCountRetrieveRepository albumCountRetrieveRepository;
+    private final AlbumCountMapper albumCountMapper;
 
     @Override
-    public Flux<AlbumCountResponseDto> getAlbumCountByReleaseYearAndArtist(Pageable pageable, String artistKeyword,
-            Integer yearKeyword) {
+    public Flux<AlbumCountResponseDto> getAlbumCountByReleaseYearAndArtist(
+            Pageable pageable,
+            String artistKeyword,
+            Integer yearKeyword
+    ) {
         return albumCountRetrieveRepository.findAlbumCountByReleaseYearAndArtist(pageable, artistKeyword, yearKeyword)
-                .map(albumCountModel -> AlbumCountResponseDto.builder()
-                        .releaseYear(albumCountModel.getReleaseYear())
-                        .artistName(albumCountModel.getArtistName())
-                        .albumCount(albumCountModel.getAlbumCount())
-                        .build());
+                .map(albumCountMapper::toResponse);
     }
 
     @Override

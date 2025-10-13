@@ -74,21 +74,16 @@ public class AlbumCountController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortColumn);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Mono<List<AlbumCountResponseDto>> modelsMono = albumCountService
+        Mono<List<AlbumCountResponseDto>> albumCountResponseDtos = albumCountService
                 .getAlbumCountByReleaseYearAndArtist(pageable, artistKeyword, yearKeyword)
                 .collectList();
-        Mono<Long> totalCountMono = albumCountService.countAlbumCounts(artistKeyword, yearKeyword);
+        Mono<Long> albumCounts = albumCountService.countAlbumCounts(artistKeyword, yearKeyword);
 
-        return Mono.zip(modelsMono, totalCountMono)
+        return Mono.zip(albumCountResponseDtos, albumCounts)
                 .map(tuple -> new CommonPageResponse<>(
                         tuple.getT1(),
                         page + 1,
                         size,
                         tuple.getT2()));
-    }
-
-    @GetMapping("/album-counts/internal-error")
-    public Mono<Void> throwInternalServerError() {
-        return Mono.error(new RuntimeException("서버 내부 오류 테스트"));
     }
 }
