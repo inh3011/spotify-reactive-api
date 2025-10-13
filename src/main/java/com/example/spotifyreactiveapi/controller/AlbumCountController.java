@@ -42,13 +42,13 @@ public class AlbumCountController {
             @Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
             @RequestParam(defaultValue = "0")
             @Min(value = 0, message = "페이지 번호는 0 이상이어야 합니다")
-            @Max(value = 10000, message = "페이지 번호는 10000 이하여야 합니다")
             int page,
 
             @Parameter(description = "페이지 크기", example = "20")
             @RequestParam(defaultValue = "20")
             @Min(value = 1, message = "페이지 크기는 1 이상이어야 합니다")
-            @Max(value = 1000, message = "페이지 크기는 1000 이하여야 합니다") int size,
+            @Max(value = 1000, message = "페이지 크기는 1000 이하여야 합니다")
+            int size,
 
             @Parameter(description = "정렬 컬럼 (release_year, artist_name )", example = "release_year")
             @RequestParam(defaultValue = "release_year")
@@ -60,7 +60,7 @@ public class AlbumCountController {
             @Pattern(regexp = "^(ASC|DESC)$", message = "정렬 방향은 ASC 또는 DESC여야 합니다")
             String sortDir,
 
-            @Parameter(description = "가수 이름 키워드 (부분 검색)")
+            @Parameter(description = "가수 이름 키워드")
             @RequestParam(required = false)
             String artistKeyword,
 
