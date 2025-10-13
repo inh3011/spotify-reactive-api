@@ -16,13 +16,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +30,10 @@ public class SpotifyServiceImpl implements SpotifyService {
 
     private final SpotifyProperties spotifyProperties;
 
+    private static final int BUFFER_SIZE_64KB = 65536;
+
     @Override
-    public Mono<InputStream> read() {
+    public Mono<BufferedInputStream> read() {
         return Mono.fromCallable(() -> {
                     String filePath = spotifyProperties.getFilePath();
                     Path path = Paths.get(filePath);
@@ -40,7 +41,7 @@ public class SpotifyServiceImpl implements SpotifyService {
                     validateFileExists(path);
                     validateFileExtension(filePath);
 
-                    return Files.newInputStream(path);
+                    return new BufferedInputStream(Files.newInputStream(path), BUFFER_SIZE_64KB);
                 })
                 .subscribeOn(Schedulers.boundedElastic());
     }
