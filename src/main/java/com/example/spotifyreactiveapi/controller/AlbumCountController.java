@@ -60,11 +60,11 @@ public class AlbumCountController {
             @Pattern(regexp = "^(ASC|DESC)$", message = "정렬 방향은 ASC 또는 DESC여야 합니다")
             String sortDir,
 
-            @Parameter(description = "가수 이름 키워드 (부분 검색)", example = "Taylor")
+            @Parameter(description = "가수 이름 키워드 (부분 검색)")
             @RequestParam(required = false)
             String artistKeyword,
 
-            @Parameter(description = "발매 년도", example = "2020")
+            @Parameter(description = "발매 년도")
             @RequestParam(required = false)
             @Min(value = 1900, message = "발매 년도는 1900년 이상이어야 합니다")
             @Max(value = 2030, message = "발매 년도는 2030년 이하여야 합니다")
