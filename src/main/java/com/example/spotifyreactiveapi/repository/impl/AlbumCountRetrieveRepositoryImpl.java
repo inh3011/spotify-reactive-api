@@ -31,7 +31,6 @@ public class AlbumCountRetrieveRepositoryImpl implements AlbumCountRetrieveRepos
                 .sql("""
                         SELECT release_year, artist_name, COUNT(DISTINCT album_name) AS album_count
                         FROM song
-                        WHERE release_year IS NOT NULL AND artist_name IS NOT NULL
                         %s
                         GROUP BY release_year, artist_name
                         ORDER BY %s, artist_name ASC
@@ -66,7 +65,6 @@ public class AlbumCountRetrieveRepositoryImpl implements AlbumCountRetrieveRepos
                         FROM (
                             SELECT release_year, artist_name
                             FROM song
-                            WHERE release_year IS NOT NULL AND artist_name IS NOT NULL
                             %s
                             GROUP BY release_year, artist_name
                         ) t
