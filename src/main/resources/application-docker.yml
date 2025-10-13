@@ -47,6 +47,6 @@ springdoc:
     path: /swagger-ui.html
     operationsSorter: method
     tagsSorter: alpha
-    tryItOutEnabled: true
+    validator-url: none
   show-actuator: true
 
