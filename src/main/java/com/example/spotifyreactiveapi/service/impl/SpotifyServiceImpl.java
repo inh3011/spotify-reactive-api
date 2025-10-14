@@ -13,12 +13,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,29 +35,27 @@ public class SpotifyServiceImpl implements SpotifyService {
     @Override
     public Mono<BufferedInputStream> read() {
         return Mono.fromCallable(() -> {
-            String filePath = spotifyProperties.getFilePath();
-            Path path = Paths.get(filePath);
+                    String filePath = spotifyProperties.getFilePath();
+                    Path path = Paths.get(filePath);
 
-            validateFileExists(path);
-            validateFileExtension(filePath);
+                    validateFileExists(path);
+                    validateFileExtension(filePath);
 
-            return new BufferedInputStream(Files.newInputStream(path), BUFFER_SIZE_64KB);
-        })
+                    return new BufferedInputStream(Files.newInputStream(path), BUFFER_SIZE_64KB);
+                })
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override
-    public Flux<SpotifyData> parse(BufferedInputStream bufferedInputStream) {
+    public Flux<SpotifyData> parse(InputStream inputStream) {
         return Flux.create(emitter -> {
             JsonFactory factory = new JsonFactory();
             ObjectMapper objectMapper = new ObjectMapper();
 
-            try (JsonParser parser = factory.createParser(bufferedInputStream);
-                    var validatorFactory = Validation.buildDefaultValidatorFactory()) {
+            try (JsonParser parser = factory.createParser(inputStream);
+                 var validatorFactory = Validation.buildDefaultValidatorFactory()) {
 
                 Validator validator = validatorFactory.getValidator();
-
-                validateEmptyJson(parser, emitter);
 
                 while (parser.nextToken() != null) {
                     if (parser.currentToken() == JsonToken.START_OBJECT) {
@@ -98,13 +96,6 @@ public class SpotifyServiceImpl implements SpotifyService {
 
         if (!filePath.toLowerCase().endsWith(".json")) {
             throw new IllegalArgumentException("Only .json files are allowed");
-        }
-    }
-
-    private void validateEmptyJson(JsonParser parser, FluxSink<SpotifyData> emitter) throws IOException {
-        JsonToken jsonToken = parser.nextToken();
-        if (jsonToken == null) {
-            emitter.error(new IllegalArgumentException("JSON data is empty"));
         }
     }
 
