@@ -77,7 +77,8 @@ class SpotifySaveServiceImplTest {
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
 
-            verify(songService).saveOrUpdate(argThat(songModel -> songModel.getArtistName().equals("Artist") &&
+            verify(songService).saveOrUpdate(argThat(songModel ->
+                    songModel.getArtistName().equals("Artist") &&
                     songModel.getAlbumName().equals("Album") &&
                     songModel.getSongTitle().equals("Song") &&
                     songModel.getReleaseDate().equals(LocalDate.of(2023, 1, 1)) &&
@@ -130,7 +131,8 @@ class SpotifySaveServiceImplTest {
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
 
-            verify(songService).saveOrUpdate(argThat(songModel -> songModel.getArtistName() == null &&
+            verify(songService).saveOrUpdate(argThat(songModel ->
+                    songModel.getArtistName() == null &&
                     songModel.getAlbumName() == null &&
                     songModel.getSongTitle() == null));
         }
@@ -150,7 +152,8 @@ class SpotifySaveServiceImplTest {
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
 
             verify(songService)
-                    .saveOrUpdate(argThat(songModel -> songModel.getReleaseDate().equals(LocalDate.of(2023, 1, 1)) &&
+                    .saveOrUpdate(argThat(songModel ->
+                            songModel.getReleaseDate().equals(LocalDate.of(2023, 1, 1)) &&
                             songModel.getReleaseYear().equals(2023)));
         }
 
@@ -176,7 +179,8 @@ class SpotifySaveServiceImplTest {
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData()).verifyComplete();
 
-            verify(songService).saveOrUpdate(argThat(songModel -> songModel.getReleaseDate() == null &&
+            verify(songService).saveOrUpdate(argThat(songModel ->
+                    songModel.getReleaseDate() == null &&
                     songModel.getReleaseYear() == null));
         }
     }
