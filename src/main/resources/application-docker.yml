@@ -20,7 +20,7 @@ spring:
 
 spotify:
   data:
-    file-path: /app/resources/data/900k Definitive Spotify Dataset.json
+    file-path: /app/resources/900k Definitive Spotify Dataset.json
 
 logging:
   level:
