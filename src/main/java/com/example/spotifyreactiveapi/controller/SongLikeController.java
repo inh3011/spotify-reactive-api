@@ -1,7 +1,7 @@
 package com.example.spotifyreactiveapi.controller;
 
-import com.example.spotifyreactiveapi.controller.dto.SongLikeResponseDto;
-import com.example.spotifyreactiveapi.controller.dto.SongLikeTopResponseDto;
+import com.example.spotifyreactiveapi.controller.dto.SongLikeResponse;
+import com.example.spotifyreactiveapi.controller.dto.SongLikeTopResponse;
 import com.example.spotifyreactiveapi.mapper.SongLikeMapper;
 import com.example.spotifyreactiveapi.service.SongLikeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,13 +29,13 @@ public class SongLikeController {
 
     @Operation(summary = "좋아요 증가 API", description = "특정 노래의 좋아요를 1건 생성합니다.")
     @PostMapping("/{songId}/like")
-    public Mono<SongLikeResponseDto> likeSong(@PathVariable("songId") Long songId) {
+    public Mono<SongLikeResponse> likeSong(@PathVariable("songId") Long songId) {
         return songLikeService.save(songId).map(songLikeMapper::toResponse);
     }
 
     @Operation(summary = "좋아요 Top 조회", description = "hour 과 limit 으로 좋아요 상위 곡을 조회합니다. 예: hour=1&top=10")
     @GetMapping("/likes/top")
-    public Flux<SongLikeTopResponseDto> getTopLikes(
+    public Flux<SongLikeTopResponse> getTopLikes(
             @RequestParam(name = "hour", defaultValue = "1")
             @Min(value = 1, message = "시간은 1 이상이어야 합니다")
             @Max(value = 24, message = "시간은 24 이하여야 합니다")
@@ -46,6 +46,6 @@ public class SongLikeController {
             @Max(value = 100, message = "제한 크기는 100 이하여야 합니다")
             Integer top
     ) {
-        return songLikeService.getTopLikes(hour, top).map(songLikeMapper::toTopResponse);
+        return songLikeService.getTopLikes(hour, top);
     }
 }

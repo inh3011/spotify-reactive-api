@@ -1,6 +1,6 @@
 package com.example.spotifyreactiveapi.service.impl;
 
-import com.example.spotifyreactiveapi.controller.dto.AlbumCountResponseDto;
+import com.example.spotifyreactiveapi.controller.dto.AlbumCountResponse;
 import com.example.spotifyreactiveapi.mapper.AlbumCountMapper;
 import com.example.spotifyreactiveapi.repository.AlbumCountRetrieveRepository;
 import com.example.spotifyreactiveapi.service.AlbumCountService;
@@ -18,7 +18,7 @@ public class AlbumCountServiceImpl implements AlbumCountService {
     private final AlbumCountMapper albumCountMapper;
 
     @Override
-    public Flux<AlbumCountResponseDto> getAlbumCountByReleaseYearAndArtist(
+    public Flux<AlbumCountResponse> getAlbumCountByReleaseYearAndArtist(
             Pageable pageable,
             String artistKeyword,
             Integer yearKeyword

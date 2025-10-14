@@ -1,8 +1,8 @@
 package com.example.spotifyreactiveapi.service.impl;
 
+import com.example.spotifyreactiveapi.controller.dto.SongLikeTopResponse;
 import com.example.spotifyreactiveapi.mapper.SongLikeMapper;
 import com.example.spotifyreactiveapi.model.SongLikeModel;
-import com.example.spotifyreactiveapi.model.SongLikeTopModel;
 import com.example.spotifyreactiveapi.repository.SongLikeRepository;
 import com.example.spotifyreactiveapi.repository.SongLikeTopRepository;
 import com.example.spotifyreactiveapi.service.SongLikeService;
@@ -28,7 +28,8 @@ public class SongLikeServiceImpl implements SongLikeService {
     }
 
     @Override
-    public Flux<SongLikeTopModel> getTopLikes(Integer hour, Integer limit) {
-        return songLikeTopRepository.findTopLikes(hour, limit);
+    public Flux<SongLikeTopResponse> getTopLikes(Integer hour, Integer limit) {
+        return songLikeTopRepository.findTopLikes(hour, limit)
+                .map(songLikeMapper::toTopResponse);
     }
 }

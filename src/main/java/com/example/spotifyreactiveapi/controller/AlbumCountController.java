@@ -1,6 +1,6 @@
 package com.example.spotifyreactiveapi.controller;
 
-import com.example.spotifyreactiveapi.controller.dto.AlbumCountResponseDto;
+import com.example.spotifyreactiveapi.controller.dto.AlbumCountResponse;
 import com.example.spotifyreactiveapi.controller.dto.CommonPageResponse;
 import com.example.spotifyreactiveapi.controller.dto.ErrorResponse;
 import com.example.spotifyreactiveapi.service.AlbumCountService;
@@ -39,7 +39,7 @@ public class AlbumCountController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping
-    public Mono<CommonPageResponse<AlbumCountResponseDto>> getAlbumCount(
+    public Mono<CommonPageResponse<AlbumCountResponse>> getAlbumCount(
             @Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
             @RequestParam(defaultValue = "0")
             @Min(value = 0, message = "페이지 번호는 0 이상이어야 합니다")
