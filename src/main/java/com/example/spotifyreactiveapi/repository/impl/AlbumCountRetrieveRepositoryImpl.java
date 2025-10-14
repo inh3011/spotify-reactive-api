@@ -10,6 +10,9 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Repository
 @RequiredArgsConstructor
 public class AlbumCountRetrieveRepositoryImpl implements AlbumCountRetrieveRepository {
@@ -77,21 +80,17 @@ public class AlbumCountRetrieveRepositoryImpl implements AlbumCountRetrieveRepos
             query = query.bind("yearKeyword", yearKeyword);
         }
 
-        return query
-                .map((row, metadata) -> row.get("total", Long.class))
+        return query.map((row, metadata) -> row.get("total", Long.class))
                 .one();
     }
 
     private String buildOrderByClause(Sort sort) {
-        if (!sort.isSorted()) {
-            return "release_year DESC";
-        }
+        Set<String> allowedColumns = Set.of("release_year", "artist_name", "album_count");
 
-        Sort.Order order = sort.iterator().next();
-        String property = order.getProperty();
-        String direction = order.getDirection().isDescending() ? "DESC" : "ASC";
-
-        return property + " " + direction;
+        return sort.stream()
+                .filter(order -> allowedColumns.contains(order.getProperty()))
+                .map(order -> order.getProperty() + " " + order.getDirection())
+                .collect(Collectors.joining(", "));
     }
 
     private String buildWhereClause(String artistKeyword, Integer yearKeyword) {

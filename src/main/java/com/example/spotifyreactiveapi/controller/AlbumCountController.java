@@ -18,10 +18,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @Tag(name = "Album API", description = "Album 조회 API")
 @RestController
@@ -70,20 +71,12 @@ public class AlbumCountController {
             @Max(value = 2030, message = "발매 년도는 2030년 이하여야 합니다")
             Integer yearKeyword
     ) {
-
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortColumn);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Mono<List<AlbumCountResponseDto>> albumCountResponseDtos = albumCountService
-                .getAlbumCountByReleaseYearAndArtist(pageable, artistKeyword, yearKeyword)
-                .collectList();
-        Mono<Long> albumCounts = albumCountService.countAlbumCounts(artistKeyword, yearKeyword);
-
-        return Mono.zip(albumCountResponseDtos, albumCounts)
-                .map(tuple -> new CommonPageResponse<>(
-                        tuple.getT1(),
-                        page + 1,
-                        size,
-                        tuple.getT2()));
+        return Mono.zip(
+                albumCountService.getAlbumCountByReleaseYearAndArtist(pageable, artistKeyword, yearKeyword).collectList(),
+                albumCountService.countAlbumCounts(artistKeyword, yearKeyword)
+        ).map(tuple -> new CommonPageResponse<>(tuple.getT1(), page, size, tuple.getT2()));
     }
 }
