@@ -1,7 +1,7 @@
 package com.example.spotifyreactiveapi.mapper;
 
-import com.example.spotifyreactiveapi.controller.dto.SongLikeResponseDto;
-import com.example.spotifyreactiveapi.controller.dto.SongLikeTopResponseDto;
+import com.example.spotifyreactiveapi.controller.dto.SongLikeResponse;
+import com.example.spotifyreactiveapi.controller.dto.SongLikeTopResponse;
 import com.example.spotifyreactiveapi.domain.SongLike;
 import com.example.spotifyreactiveapi.model.SongLikeModel;
 import com.example.spotifyreactiveapi.model.SongLikeTopModel;
@@ -14,7 +14,7 @@ public interface SongLikeMapper {
 
     SongLikeModel toModel(SongLike entity);
 
-    SongLikeResponseDto toResponse(SongLikeModel model);
+    SongLikeResponse toResponse(SongLikeModel model);
 
-    SongLikeTopResponseDto toTopResponse(SongLikeTopModel model);
+    SongLikeTopResponse toTopResponse(SongLikeTopModel model);
 }

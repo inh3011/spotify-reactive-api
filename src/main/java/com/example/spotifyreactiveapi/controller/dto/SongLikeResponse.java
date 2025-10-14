@@ -6,19 +6,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "최근 1시간 좋아요 Top10 응답")
-public class SongLikeTopResponseDto {
+@Schema(description = "노래 좋아요 응답")
+public class SongLikeResponse {
+
+    @Schema(description = "좋아요 ID")
+    private Long id;
 
     @Schema(description = "노래 ID")
     private Long songId;
 
-    @Schema(description = "좋아요 수")
-    private Long likeCount;
+    @Schema(description = "생성일시")
+    private LocalDateTime createdAt;
 
-    @Schema(description = "등수 (1부터 시작)")
-    private Integer rank;
+    @Schema(description = "수정일시")
+    private LocalDateTime updatedAt;
 }

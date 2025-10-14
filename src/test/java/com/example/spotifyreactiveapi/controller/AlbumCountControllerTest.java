@@ -1,6 +1,6 @@
 package com.example.spotifyreactiveapi.controller;
 
-import com.example.spotifyreactiveapi.controller.dto.AlbumCountResponseDto;
+import com.example.spotifyreactiveapi.controller.dto.AlbumCountResponse;
 import com.example.spotifyreactiveapi.controller.dto.CommonPageResponse;
 import com.example.spotifyreactiveapi.service.AlbumCountService;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,9 +50,9 @@ class AlbumCountControllerTest {
                 .build();
     }
 
-    private List<AlbumCountResponseDto> createTestData(int count) {
+    private List<AlbumCountResponse> createTestData(int count) {
         return IntStream.range(0, count)
-                .mapToObj(i -> AlbumCountResponseDto.builder()
+                .mapToObj(i -> AlbumCountResponse.builder()
                         .releaseYear(2020 + i)
                         .artistName("Artist " + (i + 1))
                         .albumCount(5L - i)
@@ -68,7 +68,7 @@ class AlbumCountControllerTest {
         @DisplayName("기본 파라미터로 앨범 수 조회 성공")
         void shouldGetAlbumCountWithDefaultParameters() {
             // given
-            List<AlbumCountResponseDto> expectedData = createTestData(2);
+            List<AlbumCountResponse> expectedData = createTestData(2);
             long expectedTotal = 2L;
 
             when(albumCountService.getAlbumCountByReleaseYearAndArtist(any(Pageable.class), isNull(), isNull()))
@@ -112,7 +112,7 @@ class AlbumCountControllerTest {
             String artistKeyword = "BTS";
             int yearKeyword = 2020;
 
-            List<AlbumCountResponseDto> expectedData = createTestData(50);
+            List<AlbumCountResponse> expectedData = createTestData(50);
             long expectedTotal = 50L;
 
             when(albumCountService.getAlbumCountByReleaseYearAndArtist(any(Pageable.class), eq(artistKeyword), eq(yearKeyword)))
@@ -181,7 +181,7 @@ class AlbumCountControllerTest {
         void shouldGetAlbumCountWithOnlyArtistKeyword() {
             // given
             String artistKeyword = "IU";
-            List<AlbumCountResponseDto> expectedData = createTestData(3);
+            List<AlbumCountResponse> expectedData = createTestData(3);
 
             when(albumCountService.getAlbumCountByReleaseYearAndArtist(any(Pageable.class), eq(artistKeyword), isNull()))
                     .thenReturn(Flux.fromIterable(expectedData));
@@ -210,7 +210,7 @@ class AlbumCountControllerTest {
         void shouldGetAlbumCountWithOnlyYearKeyword() {
             // given
             int yearKeyword = 2021;
-            List<AlbumCountResponseDto> expectedData = createTestData(5);
+            List<AlbumCountResponse> expectedData = createTestData(5);
 
             when(albumCountService.getAlbumCountByReleaseYearAndArtist(any(Pageable.class), isNull(), eq(yearKeyword)))
                     .thenReturn(Flux.fromIterable(expectedData));

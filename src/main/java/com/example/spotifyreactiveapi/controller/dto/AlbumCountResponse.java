@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "연도 & 가수별 앨범 수 집계 응답")
-public class AlbumCountResponseDto {
+public class AlbumCountResponse {
 
     @Schema(description = "발매년도")
     private Integer releaseYear;

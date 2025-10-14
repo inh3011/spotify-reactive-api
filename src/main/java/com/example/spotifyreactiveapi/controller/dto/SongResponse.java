@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "노래 응답")
-public class SongResponseDto {
+public class SongResponse {
 
     @Schema(description = "노래 ID")
     private Long id;
