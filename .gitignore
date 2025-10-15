@@ -2,10 +2,11 @@
 .gradle
 **/build/
 !src/**/build/
-!gradle/wrapper/gradle-wrapper.jar
 gradle-app.setting
 .gradletasknamecache
-!gradle-wrapper.properties
+# gradle wrapper 파일은 Git에 포함
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
 
 # IntelliJ IDEA
 .idea/
@@ -41,9 +42,7 @@ bin/
 # Java
 *.class
 *.log
-*.ctxt
 .mtj.tmp/
-*.jar
 *.war
 *.nar
 *.ear
@@ -68,4 +67,5 @@ Desktop.ini
 # env
 .env
 
+# Dataset
 900k Definitive Spotify Dataset.json
