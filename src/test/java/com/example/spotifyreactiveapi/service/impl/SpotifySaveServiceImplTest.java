@@ -130,8 +130,8 @@ class SpotifySaveServiceImplTest {
         }
 
         @Test
-        @DisplayName("모든 필드가 null이면 예외가 발생한다.")
-        void shouldThrowExceptionWhenAllFieldsAreNull() {
+        @DisplayName("모든 필드가 null이면 해당 데이터를 건너뛰고 계속 처리한다.")
+        void shouldSkipDataWhenAllFieldsAreNull() {
             SpotifyData spotifyData = data();
             spotifyData.setArtistName(null);
             spotifyData.setAlbumName(null);
@@ -140,8 +140,10 @@ class SpotifySaveServiceImplTest {
             when(spotifyService.processFile()).thenReturn(Flux.just(spotifyData));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData())
-                    .expectError(IllegalArgumentException.class)
-                    .verify();
+                    .verifyComplete();
+
+            verify(spotifyDataMapper, never()).toSongModel(any());
+            verify(songService, never()).saveOrUpdate(any());
         }
     }
 
@@ -166,8 +168,8 @@ class SpotifySaveServiceImplTest {
         }
 
         @Test
-        @DisplayName("잘못된 날짜 형식이면 예외가 발생한다.")
-        void shouldPropagateErrorWithInvalidDate() {
+        @DisplayName("잘못된 날짜 형식이면 해당 데이터를 건너뛰고 계속 처리한다.")
+        void shouldSkipDataWithInvalidDate() {
             SpotifyData spotifyData = data();
             spotifyData.setReleaseDate("2023/01/01");
             when(spotifyService.processFile()).thenReturn(Flux.just(spotifyData));
@@ -175,8 +177,9 @@ class SpotifySaveServiceImplTest {
                     .thenThrow(new DateTimeParseException("Invalid date format", "2023/01/01", 0));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData())
-                    .expectError(DateTimeParseException.class)
-                    .verify();
+                    .verifyComplete();
+
+            verify(songService, never()).saveOrUpdate(any());
         }
 
         @Test
@@ -224,16 +227,39 @@ class SpotifySaveServiceImplTest {
         }
 
         @Test
-        @DisplayName("Song 서비스 에러가 발생하면 예외가 반환한다.")
-        void shouldPropagateExceptionWhenSongServiceFails() {
+        @DisplayName("Song 서비스 에러가 발생하면 해당 데이터를 건너뛰고 계속 처리한다.")
+        void shouldSkipDataWhenSongServiceFails() {
             when(spotifyService.processFile()).thenReturn(Flux.just(data()));
             when(spotifyDataMapper.toSongModel(any(SpotifyData.class))).thenReturn(song());
             when(songService.saveOrUpdate(any(SongModel.class)))
                     .thenReturn(Mono.error(new RuntimeException("DB error")));
 
             StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData())
-                    .expectError(RuntimeException.class)
-                    .verify();
+                    .verifyComplete();
+
+            verify(songService).saveOrUpdate(any());
+        }
+
+        @Test
+        @DisplayName("일부 데이터 실패 시에도 나머지 데이터는 정상 처리된다.")
+        void shouldContinueProcessingAfterError() {
+            SpotifyData validData1 = data();
+            SpotifyData invalidData = data();
+            invalidData.setArtistName(null);
+            invalidData.setAlbumName(null);
+            invalidData.setSongTitle(null);
+            SpotifyData validData2 = data();
+            validData2.setSongTitle("Song2");
+
+            when(spotifyService.processFile()).thenReturn(Flux.just(validData1, invalidData, validData2));
+            when(spotifyDataMapper.toSongModel(any(SpotifyData.class))).thenReturn(song());
+            when(songService.saveOrUpdate(any(SongModel.class))).thenReturn(Mono.just(song()));
+
+            StepVerifier.create(spotifySaveServiceImpl.saveSpotifyData())
+                    .verifyComplete();
+
+            // 유효한 데이터 2개만 저장되어야 함
+            verify(songService, times(2)).saveOrUpdate(any());
         }
     }
 }

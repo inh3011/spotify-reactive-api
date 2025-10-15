@@ -2,7 +2,6 @@ package com.example.spotifyreactiveapi.service.impl;
 
 import com.example.spotifyreactiveapi.controller.dto.SpotifyData;
 import com.example.spotifyreactiveapi.mapper.SpotifyDataMapper;
-import com.example.spotifyreactiveapi.model.SongModel;
 import com.example.spotifyreactiveapi.service.SongService;
 import com.example.spotifyreactiveapi.service.SpotifySaveService;
 import com.example.spotifyreactiveapi.service.SpotifyService;
@@ -16,33 +15,40 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class SpotifySaveServiceImpl implements SpotifySaveService {
 
-        private final SpotifyService spotifyService;
-        private final SongService songService;
-        private final SpotifyDataMapper spotifyDataMapper;
+    private final SpotifyService spotifyService;
+    private final SongService songService;
+    private final SpotifyDataMapper spotifyDataMapper;
 
-        @Override
-        public Mono<Void> saveSpotifyData() {
-                return spotifyService.processFile()
-                                .flatMap(this::saveSong)
-                                .then();
-        }
+    @Override
+    public Mono<Void> saveSpotifyData() {
+        return spotifyService.processFile()
+                .flatMap(data -> saveSong(data)
+                        .onErrorResume(error -> {
+                            log.warn("Skipping invalid data. Reason: {}, Data: artist={}, album={}, title={}",
+                                    error.getMessage(),
+                                    data.getArtistName(),
+                                    data.getAlbumName(),
+                                    data.getSongTitle());
+                            return Mono.empty();
+                        }))
+                .then();
+    }
 
-        private Mono<Void> saveSong(SpotifyData data) {
-                return Mono.just(data)
-                                .doOnNext(this::validateSpotifyData)
-                                .map(spotifyDataMapper::toSongModel)
-                                .flatMap(songService::saveOrUpdate)
-                                .doOnSuccess(savedSong -> log.debug("Successfully saved song with ID: {}",
-                                                savedSong.getId()))
-                                .doOnError(error -> log.error("Failed to save/update song: {}", error.getMessage()))
-                                .then();
-        }
+    private Mono<Void> saveSong(SpotifyData data) {
+        return Mono.just(data)
+                .doOnNext(this::validateSpotifyData)
+                .map(spotifyDataMapper::toSongModel)
+                .flatMap(songService::saveOrUpdate)
+                .doOnSuccess(savedSong -> log.debug("Successfully saved song with ID: {}",
+                        savedSong.getId()))
+                .then();
+    }
 
-        private void validateSpotifyData(SpotifyData data) {
-                if (data.getArtistName() == null && data.getAlbumName() == null && data.getSongTitle() == null) {
-                        throw new IllegalArgumentException(
-                                        "All required fields (artist_name, album_name, song_title) cannot be null");
-                }
+    private void validateSpotifyData(SpotifyData data) {
+        if (data.getArtistName() == null && data.getAlbumName() == null && data.getSongTitle() == null) {
+            throw new IllegalArgumentException(
+                    "All required fields (artist_name, album_name, song_title) cannot be null");
         }
+    }
 
 }
