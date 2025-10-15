@@ -8,8 +8,8 @@ import com.example.spotifyreactiveapi.repository.SongLikeTopRepository;
 import com.example.spotifyreactiveapi.service.SongLikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -21,15 +21,31 @@ public class SongLikeServiceImpl implements SongLikeService {
 
     @Override
     public Mono<SongLikeModel> save(Long songId) {
-        return Mono.just(SongLikeModel.create(songId))
+        return Mono.just(songId)
+                .doOnNext(this::validateSongId)
+                .map(SongLikeModel::create)
                 .map(songLikeMapper::toEntity)
                 .flatMap(songLikeRepository::save)
-                .map(songLikeMapper::toModel);
+                .map(songLikeMapper::toModel)
+                .onErrorMap(IllegalArgumentException.class, exception -> exception)
+                .onErrorMap(Exception.class,
+                        exception -> new RuntimeException("Failed to save song like: " + exception.getMessage(), exception));
     }
 
     @Override
     public Flux<SongLikeTopResponse> getTopLikes(Integer hour, Integer limit) {
-        return songLikeTopRepository.findTopLikes(hour, limit)
+        return Mono.just(hour)
+                .then(Mono.just(limit))
+                .thenMany(songLikeTopRepository.findTopLikes(hour, limit))
                 .map(songLikeMapper::toTopResponse);
+    }
+
+    private void validateSongId(Long songId) {
+        if (songId == null) {
+            throw new IllegalArgumentException("Song ID cannot be null");
+        }
+        if (songId < 0L) {
+            throw new IllegalArgumentException("Song ID must be non-negative");
+        }
     }
 }
