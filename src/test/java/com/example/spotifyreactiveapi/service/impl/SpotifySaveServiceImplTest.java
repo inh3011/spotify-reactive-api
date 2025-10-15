@@ -72,7 +72,7 @@ class SpotifySaveServiceImplTest {
         }
 
         @Test
-        @DisplayName("Song 저장 시 올바른 데이터가 전달된다.")
+        @DisplayName("Song 저장 시 올바른 데이터가 반환한다.")
         void shouldPassCorrectDataWhenSaving() {
             when(spotifyService.processFile()).thenReturn(Flux.just(data()));
             when(spotifyDataMapper.toSongModel(any(SpotifyData.class))).thenReturn(song());
@@ -149,7 +149,7 @@ class SpotifySaveServiceImplTest {
     @DisplayName("발매일 파싱 검증")
     class DateParsingValidation {
         @Test
-        @DisplayName("유효한 날짜(YYYY-MM-DD)면 releaseDate/Year가 정상 전달된다.")
+        @DisplayName("유효한 날짜(YYYY-MM-DD)면 releaseDate/Year가 정상 반환한다.")
         void shouldPropagateValidDate() {
             SpotifyData spotifyData = data();
             spotifyData.setReleaseDate("2023-01-01");
@@ -224,7 +224,7 @@ class SpotifySaveServiceImplTest {
         }
 
         @Test
-        @DisplayName("Song 서비스 에러가 발생하면 예외가 전파된다.")
+        @DisplayName("Song 서비스 에러가 발생하면 예외가 반환한다.")
         void shouldPropagateExceptionWhenSongServiceFails() {
             when(spotifyService.processFile()).thenReturn(Flux.just(data()));
             when(spotifyDataMapper.toSongModel(any(SpotifyData.class))).thenReturn(song());
