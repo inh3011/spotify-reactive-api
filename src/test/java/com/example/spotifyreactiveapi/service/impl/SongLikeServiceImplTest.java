@@ -97,7 +97,7 @@ class SongLikeServiceImplTest {
     class SaveExceptionHandling {
 
         @Test
-        @DisplayName("저장 중 예외가 발생하면 RuntimeException을 반환한다.")
+        @DisplayName("조회 중 예외가 발생하면 예외를 반환한다.")
         void shouldReturnRuntimeExceptionWhenSaveFails() {
             when(songLikeMapper.toEntity(any(SongLikeModel.class))).thenReturn(songLike());
             when(songLikeRepository.save(any(SongLike.class)))
@@ -144,7 +144,7 @@ class SongLikeServiceImplTest {
     class GetTopLikesExceptionHandling {
 
         @Test
-        @DisplayName("조회 중 예외가 발생하면 예외가 전파된다.")
+        @DisplayName("조회 중 예외가 발생하면 예외를 반환한다.")
         void shouldPropagateExceptionWhenQueryFails() {
             when(songLikeTopRepository.findTopLikes(anyInt(), anyInt()))
                     .thenReturn(Flux.error(new RuntimeException("Query failed")));
