@@ -1,5 +1,6 @@
 package com.example.spotifyreactiveapi.service.impl;
 
+import com.example.spotifyreactiveapi.exception.EntityNotFoundException;
 import com.example.spotifyreactiveapi.mapper.SongMapper;
 import com.example.spotifyreactiveapi.model.SongModel;
 import com.example.spotifyreactiveapi.repository.SongRepository;
@@ -29,5 +30,12 @@ public class SongServiceImpl implements SongService {
                 .map(songMapper::toEntity)
                 .flatMap(songRepository::saveOrUpdate)
                 .map(songMapper::toModel);
+    }
+
+    @Override
+    public Mono<SongModel> getById(Long id) {
+        return songRepository.findById(id)
+                .map(songMapper::toModel)
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("Song", id)));
     }
 }
