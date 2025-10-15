@@ -1,11 +1,13 @@
 package com.example.spotifyreactiveapi.service.impl;
 
 import com.example.spotifyreactiveapi.controller.dto.SongLikeTopResponse;
+import com.example.spotifyreactiveapi.exception.EntityNotFoundException;
 import com.example.spotifyreactiveapi.mapper.SongLikeMapper;
 import com.example.spotifyreactiveapi.model.SongLikeModel;
 import com.example.spotifyreactiveapi.repository.SongLikeRepository;
 import com.example.spotifyreactiveapi.repository.SongLikeTopRepository;
 import com.example.spotifyreactiveapi.service.SongLikeService;
+import com.example.spotifyreactiveapi.service.SongService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -18,18 +20,21 @@ public class SongLikeServiceImpl implements SongLikeService {
     private final SongLikeRepository songLikeRepository;
     private final SongLikeMapper songLikeMapper;
     private final SongLikeTopRepository songLikeTopRepository;
+    private final SongService songService;
 
     @Override
     public Mono<SongLikeModel> save(Long songId) {
         return Mono.just(songId)
                 .doOnNext(this::validateSongId)
+                .flatMap(id -> songService.getById(id).thenReturn(id))
                 .map(SongLikeModel::create)
                 .map(songLikeMapper::toEntity)
                 .flatMap(songLikeRepository::save)
                 .map(songLikeMapper::toModel)
-                .onErrorMap(IllegalArgumentException.class, exception -> exception)
-                .onErrorMap(Exception.class,
-                        exception -> new RuntimeException("Failed to save song like: " + exception.getMessage(), exception));
+                .onErrorMap(throwable -> !(throwable instanceof IllegalArgumentException) &&
+                        !(throwable instanceof EntityNotFoundException),
+                        exception -> new RuntimeException("Failed to save song like: " + exception.getMessage(),
+                                exception));
     }
 
     @Override
