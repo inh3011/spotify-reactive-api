@@ -38,12 +38,12 @@ class AlbumCountControllerIntegrationTest {
     }
 
     @Nested
-    @DisplayName("유효성 검증 테스트")
-    class ValidationTest {
+    @DisplayName("파라미터 유효성 검증")
+    class ParameterValidation {
 
         @ParameterizedTest
         @ValueSource(ints = { -1, -10 })
-        @DisplayName("페이지 번호가 0 미만이면 400 에러")
+        @DisplayName("페이지 번호가 0 미만이면 400 에러를 반환한다.")
         void shouldReturn400WhenPageIs(int invalidPage) {
             webTestClient.get()
                     .uri(uriBuilder -> uriBuilder
@@ -59,7 +59,7 @@ class AlbumCountControllerIntegrationTest {
 
         @ParameterizedTest
         @ValueSource(ints = { 0, -1 })
-        @DisplayName("페이지 크기가 1 미만이면 400 에러")
+        @DisplayName("페이지 크기가 1 미만이면 400 에러를 반환한다.")
         void shouldReturn400WhenSizeIsInvalid(int invalidSize) {
             webTestClient.get()
                     .uri(uriBuilder -> uriBuilder
@@ -75,7 +75,7 @@ class AlbumCountControllerIntegrationTest {
 
         @ParameterizedTest
         @ValueSource(ints = { 1001 })
-        @DisplayName("페이지 크기가 1000 초과하면 400 에러")
+        @DisplayName("페이지 크기가 1000 초과하면 400 에러를 반환한다.")
         void shouldReturn400WhenSizeExceeds1000(int invalidSize) {
             webTestClient.get()
                     .uri(uriBuilder -> uriBuilder
@@ -91,7 +91,7 @@ class AlbumCountControllerIntegrationTest {
 
         @ParameterizedTest
         @ValueSource(strings = { "invalid_column", "album_count", "releaseYear" })
-        @DisplayName("허용되지 않은 정렬 컬럼이면 400 에러")
+        @DisplayName("허용되지 않은 정렬 컬럼이면 400 에러를 반환한다.")
         void shouldReturn400WhenSortColumnIsInvalid(String invalidColumn) {
             webTestClient.get()
                     .uri(uriBuilder -> uriBuilder
@@ -107,7 +107,7 @@ class AlbumCountControllerIntegrationTest {
 
         @ParameterizedTest
         @ValueSource(strings = { "asc", "desc", "ASCENDING", "invalid" })
-        @DisplayName("허용되지 않은 정렬 방향이면 400 에러")
+        @DisplayName("허용되지 않은 정렬 방향이면 400 에러를 반환한다.")
         void shouldReturn400WhenSortDirIsInvalid(String invalidDir) {
             webTestClient.get()
                     .uri(uriBuilder -> uriBuilder
@@ -126,7 +126,7 @@ class AlbumCountControllerIntegrationTest {
                 "1899",
                 "2031"
         })
-        @DisplayName("년도 범위를 벗어나면 400 에러")
+        @DisplayName("년도 범위를 벗어나면 400 에러를 반환한다.")
         void shouldReturn400WhenYearIsOutOfRange(int invalidYear) {
             webTestClient.get()
                     .uri(uriBuilder -> uriBuilder
