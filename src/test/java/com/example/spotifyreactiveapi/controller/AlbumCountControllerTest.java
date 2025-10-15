@@ -61,11 +61,11 @@ class AlbumCountControllerTest {
     }
 
     @Nested
-    @DisplayName("정상 케이스 테스트")
-    class SuccessTest {
+    @DisplayName("앨범 카운트 조회 검증")
+    class GetAlbumCountValidation {
 
         @Test
-        @DisplayName("기본 파라미터로 앨범 수 조회 성공")
+        @DisplayName("기본 파라미터로 앨범 카운트가 성공적으로 조회된다.")
         void shouldGetAlbumCountWithDefaultParameters() {
             // given
             List<AlbumCountResponse> expectedData = createTestData(2);
@@ -92,17 +92,14 @@ class AlbumCountControllerTest {
 
             // verify
             verify(albumCountService).getAlbumCountByReleaseYearAndArtist(
-                    argThat(pageable ->
-                            pageable.getPageNumber() == DEFAULT_PAGE &&
-                                    pageable.getPageSize() == DEFAULT_SIZE
-                    ),
+                    argThat(pageable -> pageable.getPageNumber() == DEFAULT_PAGE &&
+                            pageable.getPageSize() == DEFAULT_SIZE),
                     isNull(),
-                    isNull()
-            );
+                    isNull());
         }
 
         @Test
-        @DisplayName("커스텀 파라미터로 앨범 수 조회 성공")
+        @DisplayName("커스텀 파라미터로 앨범 카운트가 성공적으로 조회된다.")
         void shouldGetAlbumCountWithCustomParameters() {
             // given
             int page = 2;
@@ -144,18 +141,15 @@ class AlbumCountControllerTest {
 
             // verify
             verify(albumCountService).getAlbumCountByReleaseYearAndArtist(
-                    argThat(pageable ->
-                            pageable.getPageNumber() == page &&
-                                    pageable.getPageSize() == size &&
-                                    pageable.getSort().equals(Sort.by(Sort.Direction.ASC, sortColumn))
-                    ),
+                    argThat(pageable -> pageable.getPageNumber() == page &&
+                            pageable.getPageSize() == size &&
+                            pageable.getSort().equals(Sort.by(Sort.Direction.ASC, sortColumn))),
                     eq(artistKeyword),
-                    eq(yearKeyword)
-            );
+                    eq(yearKeyword));
         }
 
         @Test
-        @DisplayName("검색 결과가 없는 경우 빈 응답 반환")
+        @DisplayName("검색 결과가 없으면 빈 응답이 반환된다.")
         void shouldReturnEmptyResponseWhenNoResults() {
             // given
             when(albumCountService.getAlbumCountByReleaseYearAndArtist(any(Pageable.class), any(), any()))
@@ -202,7 +196,8 @@ class AlbumCountControllerTest {
                         assertThat(response.getContent()).hasSize(3);
                     });
 
-            verify(albumCountService).getAlbumCountByReleaseYearAndArtist(any(Pageable.class), eq(artistKeyword), isNull());
+            verify(albumCountService).getAlbumCountByReleaseYearAndArtist(any(Pageable.class), eq(artistKeyword),
+                    isNull());
         }
 
         @Test
@@ -234,11 +229,11 @@ class AlbumCountControllerTest {
     }
 
     @Nested
-    @DisplayName("예외 처리 테스트")
-    class ErrorHandlingTest {
+    @DisplayName("예외 처리 검증")
+    class ErrorHandlingValidation {
 
         @Test
-        @DisplayName("서비스에서 예외 발생 시 500 에러 반환")
+        @DisplayName("서비스에서 예외가 발생하면 500 에러를 반환한다.")
         void shouldReturn500WhenServiceThrowsException() {
             // given
             when(albumCountService.getAlbumCountByReleaseYearAndArtist(any(Pageable.class), any(), any()))
