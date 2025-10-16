@@ -21,4 +21,13 @@ public class SongLikeTopResponse {
 
     @Schema(description = "등수 (1부터 시작)")
     private Integer rank;
+
+    @Schema(description = "곡 제목")
+    private String songTitle;
+
+    @Schema(description = "앨범 이름")
+    private String albumName;
+
+    @Schema(description = "아티스트 이름")
+    private String artistName;
 }
