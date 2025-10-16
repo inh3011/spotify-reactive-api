@@ -17,15 +17,19 @@ public class SongLikeTopRepositoryImpl implements SongLikeTopRepository {
     public Flux<SongLikeTopModel> findTopLikes(Integer hour, Integer limit) {
         return databaseClient.sql(
                 """
-                        SELECT song_id,
-                               like_count,
-                               ROW_NUMBER() OVER (ORDER BY like_count DESC) AS rank
+                        SELECT t.song_id,
+                               t.like_count,
+                               ROW_NUMBER() OVER (ORDER BY t.like_count DESC) AS rank,
+                               s.song_title,
+                               s.album_name,
+                               s.artist_name
                         FROM (
                             SELECT song_id, COUNT(*) AS like_count
                             FROM song_like
                             WHERE created_at >= NOW() - (:hour || ' hours')::interval
                             GROUP BY song_id
                         ) t
+                        JOIN song s ON s.id = t.song_id
                         ORDER BY rank
                         LIMIT :limit
                         """)
@@ -35,6 +39,9 @@ public class SongLikeTopRepositoryImpl implements SongLikeTopRepository {
                         .songId(row.get("song_id", Long.class))
                         .likeCount(row.get("like_count", Long.class))
                         .rank(row.get("rank", Integer.class))
+                        .songTitle(row.get("song_title", String.class))
+                        .albumName(row.get("album_name", String.class))
+                        .artistName(row.get("artist_name", String.class))
                         .build())
                 .all();
     }

@@ -14,4 +14,7 @@ public class SongLikeTopModel {
     private Long songId;
     private Long likeCount;
     private Integer rank;
+    private String songTitle;
+    private String albumName;
+    private String artistName;
 }
