@@ -96,10 +96,10 @@ public class AlbumCountRetrieveRepositoryImpl implements AlbumCountRetrieveRepos
     private String buildWhereClause(String artistKeyword, Integer yearKeyword) {
         StringBuilder whereClause = new StringBuilder();
         if (artistKeyword != null && !artistKeyword.trim().isEmpty()) {
-            whereClause.append(" AND artist_name ILIKE :artistKeyword");
+            whereClause.append("WHERE artist_name ILIKE :artistKeyword");
         }
         if (yearKeyword != null) {
-            whereClause.append(" AND release_year = :yearKeyword");
+            whereClause.append("WHERE release_year = :yearKeyword");
         }
         return whereClause.toString();
     }
